@@ -27,10 +27,15 @@ public:
 		float RegularHeight;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kid")
 		float CrouchingHeight;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kid")
+		float NormalSpeed;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kid")
+		float SprintSpeed;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	bool bIsCrouching;
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -44,6 +49,9 @@ public:
 	void Turn(float value);
 	void TurnAtRate(float rate);
 	void LookUpAtRate(float rate);
-	void StartCrouching();
-	void EndCrouching();
+	void ToggleCrouching();
+	UFUNCTION()
+	void CheckRoof(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void StartRunning();
+	void EndRunning();
 };

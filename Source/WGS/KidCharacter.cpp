@@ -39,6 +39,9 @@ void AKidCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	GetCapsuleComponent()->SetCapsuleHalfHeight(RegularHeight / 2, true);
+	bIsCrouching = false;
+	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
+	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AKidCharacter::CheckRoof);
 }
 
 // Called every frame
@@ -61,8 +64,10 @@ void AKidCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("Turn Right / Left Mouse", this, &AKidCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("Look Up / Down Mouse", this, &AKidCharacter::LookUpAtRate);
 
-	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AKidCharacter::StartCrouching);
-	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &AKidCharacter::EndCrouching);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AKidCharacter::ToggleCrouching);
+
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AKidCharacter::StartRunning);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AKidCharacter::EndRunning);
 }
 
 void AKidCharacter::MoveForward(float value)
@@ -112,17 +117,41 @@ void AKidCharacter::TurnAtRate(float rate)
 
 void AKidCharacter::LookUpAtRate(float rate)
 {
+	return;
 	//if (!childController->CanMove())
 		//return;
 	AddControllerPitchInput(rate * BaseLookRate * GetWorld()->GetDeltaSeconds());
 }
 
-void AKidCharacter::StartCrouching()
+void AKidCharacter::ToggleCrouching()
 {
-	GetCapsuleComponent()->SetCapsuleHalfHeight(CrouchingHeight / 2, true);
+	if (bIsCrouching)
+	{
+		bIsCrouching = false;
+		GetCapsuleComponent()->SetCapsuleHalfHeight(RegularHeight / 2, false);
+	}
+	else
+	{
+		bIsCrouching = true;
+		GetCapsuleComponent()->SetCapsuleHalfHeight(CrouchingHeight / 2, true);
+	}
 }
 
-void AKidCharacter::EndCrouching()
+void AKidCharacter::CheckRoof(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	GetCapsuleComponent()->SetCapsuleHalfHeight(RegularHeight / 2, true);
+	UE_LOG(LogTemp, Warning, TEXT("Hit normal: %s"), *Hit.Normal.ToString());
+	if (Hit.Normal == FVector(0,0,-1))
+	{
+		GetCapsuleComponent()->SetCapsuleHalfHeight(CrouchingHeight / 2, true);
+		bIsCrouching = true;
+	}
+}
+
+void AKidCharacter::StartRunning()
+{
+	GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+}
+void AKidCharacter::EndRunning()
+{
+	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 }
