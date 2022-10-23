@@ -3,6 +3,7 @@
 
 #include "KidCharacter.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -37,6 +38,7 @@ AKidCharacter::AKidCharacter()
 void AKidCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	GetCapsuleComponent()->SetCapsuleHalfHeight(RegularHeight / 2, true);
 }
 
 // Called every frame
@@ -50,14 +52,17 @@ void AKidCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAxis("MoveForward", this, &AKidCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &AKidCharacter::MoveRight);
+	PlayerInputComponent->BindAxis("Move Forward / Backward", this, &AKidCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("Move Right / Left", this, &AKidCharacter::MoveRight);
 
-	PlayerInputComponent->BindAxis("Turn", this, &AKidCharacter::Turn);
-	PlayerInputComponent->BindAxis("LookUp", this, &AKidCharacter::LookUp);
+	PlayerInputComponent->BindAxis("Turn Right / Left Gamepad", this, &AKidCharacter::Turn);
+	PlayerInputComponent->BindAxis("Look Up / Down Gamepad", this, &AKidCharacter::LookUp);
 
-	PlayerInputComponent->BindAxis("TurnRate", this, &AKidCharacter::TurnAtRate);
-	PlayerInputComponent->BindAxis("LookUpRate", this, &AKidCharacter::LookUpAtRate);
+	PlayerInputComponent->BindAxis("Turn Right / Left Mouse", this, &AKidCharacter::TurnAtRate);
+	PlayerInputComponent->BindAxis("Look Up / Down Mouse", this, &AKidCharacter::LookUpAtRate);
+
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AKidCharacter::StartCrouching);
+	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &AKidCharacter::EndCrouching);
 }
 
 void AKidCharacter::MoveForward(float value)
@@ -110,4 +115,14 @@ void AKidCharacter::LookUpAtRate(float rate)
 	//if (!childController->CanMove())
 		//return;
 	AddControllerPitchInput(rate * BaseLookRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AKidCharacter::StartCrouching()
+{
+	GetCapsuleComponent()->SetCapsuleHalfHeight(CrouchingHeight / 2, true);
+}
+
+void AKidCharacter::EndCrouching()
+{
+	GetCapsuleComponent()->SetCapsuleHalfHeight(RegularHeight / 2, true);
 }

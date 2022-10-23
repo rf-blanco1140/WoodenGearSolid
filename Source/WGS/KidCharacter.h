@@ -13,16 +13,20 @@ public:
 	// Sets default values for this character's properties
 	AKidCharacter();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
 		class USpringArmComponent* CameraBoom;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
 		class UCameraComponent* FollowCamera;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
 		float BaseTurnRate;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
 		float BaseLookRate;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kid")
+		float RegularHeight;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kid")
+		float CrouchingHeight;
 
 protected:
 	// Called when the game starts or when spawned
@@ -40,4 +44,6 @@ public:
 	void Turn(float value);
 	void TurnAtRate(float rate);
 	void LookUpAtRate(float rate);
+	void StartCrouching();
+	void EndCrouching();
 };
