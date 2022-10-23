@@ -69,6 +69,8 @@ void AKidCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AKidCharacter::StartRunning);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AKidCharacter::EndRunning);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	if (AKidController* KidController = Cast<AKidController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
 	{
