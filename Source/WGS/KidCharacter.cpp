@@ -2,6 +2,7 @@
 
 
 #include "KidCharacter.h"
+#include "KidController.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
@@ -68,6 +69,11 @@ void AKidCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AKidCharacter::StartRunning);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AKidCharacter::EndRunning);
+
+	if (AKidController* KidController = Cast<AKidController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
+	{
+		PlayerInputComponent->BindAction("Grab", IE_Pressed, KidController, &AKidController::InteractWithSelected);
+	}
 }
 
 void AKidCharacter::MoveForward(float value)
@@ -154,4 +160,9 @@ void AKidCharacter::StartRunning()
 void AKidCharacter::EndRunning()
 {
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
+}
+
+AKidController* AKidCharacter::GetKidController()
+{
+	return Cast<AKidController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 }
