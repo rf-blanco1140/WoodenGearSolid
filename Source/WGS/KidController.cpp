@@ -3,17 +3,7 @@
 
 void AKidController::BeginPlay()
 {
-	/*
-	if (IntroHUD_BP)
-	{
-		IntroHUD = Cast<UIntroStory>(CreateWidget<UUserWidget>(this, IntroHUD_BP));
-		IntroHUD->AddToViewport();
-		if (startWithIntro)
-			IntroHUD->SetVisibility(ESlateVisibility::Visible);
-		else
-			IntroHUD->SetVisibility(ESlateVisibility::Hidden);
-	}
-	*/
+	bIsPlaying = true;
 	if (PromptHUD_BP)
 	{
 		PromptHUD = Cast<UInteractionPrompt>(CreateWidget<UUserWidget>(this, PromptHUD_BP));
@@ -21,22 +11,17 @@ void AKidController::BeginPlay()
 		PromptHUD->SetVisibility(ESlateVisibility::Visible);
 		PromptHUD->SetDescriptionText(FString(""));
 	}
+	if (GameOverHUD_BP)
+	{
+		GameOverHUD = CreateWidget<UUserWidget>(this, GameOverHUD_BP);
+		GameOverHUD->AddToViewport();
+		GameOverHUD->SetVisibility(ESlateVisibility::Hidden);
+	}
 }
 
 bool AKidController::CanMove()
 {
-	/*
-	if (PauseHUD && PauseHUD->IsVisible())
-		return false;
-
-	if (EndingHUD && EndingHUD->IsVisible())
-		return false;
-
-	if (IntroHUD->IsVisible())
-		return false;
-
-	*/
-	return true;
+	return bIsPlaying;
 }
 
 void AKidController::ChangeObjectSelected(AContextInteractable* Interactable)
@@ -55,7 +40,7 @@ void AKidController::ChangeObjectSelected(AContextInteractable* Interactable)
 
 void AKidController::InteractWithSelected()
 {
-	if (CurrentInteractable != nullptr)
+	if (bIsPlaying && CurrentInteractable != nullptr)
 	{
 		CurrentInteractable->InteractWith();
 	}
@@ -104,6 +89,12 @@ EStealthState AKidController::GetStealthState() const
 AHidingSpot* AKidController::GetCurrentHidingSpot() const
 {
 	return HidingSpot;
+}
+
+void AKidController::GameOver()
+{
+	bIsPlaying = false;
+	GameOverHUD->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UInteractionPrompt::SetDescriptionText(FString newText, bool bCanInteract)

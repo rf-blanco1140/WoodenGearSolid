@@ -18,11 +18,16 @@ class WGS_API AKidController : public APlayerController
 private:
 	UPROPERTY()
 	class UInteractionPrompt* PromptHUD;
+	UPROPERTY()
+	UUserWidget* GameOverHUD;
+	UPROPERTY()
 	TArray<FGameplayTag> CollectedKeys;
 	UPROPERTY()
 	AContextInteractable* CurrentInteractable;
 	UPROPERTY()
 	AHidingSpot* HidingSpot;
+	UPROPERTY()
+	bool bIsPlaying;
 
 protected:
 	// Called when the game starts or when spawned
@@ -31,6 +36,8 @@ protected:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widgets)
 	TSubclassOf<UInteractionPrompt> PromptHUD_BP;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widgets)
+	TSubclassOf<UUserWidget> GameOverHUD_BP;
 	bool CanMove();
 	void ChangeObjectSelected(AContextInteractable*);
 	void InteractWithSelected();
@@ -40,6 +47,7 @@ public:
 	void ToggleHiddingSpot(AHidingSpot*);
 	EStealthState GetStealthState() const;
 	AHidingSpot* GetCurrentHidingSpot() const;
+	void GameOver();
 };
 
 UCLASS()

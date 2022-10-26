@@ -33,7 +33,10 @@ public:
 	float SprintSpeed;
 
 protected:
+	UPROPERTY()
 	bool bIsCrouching;
+	UPROPERTY()
+	class AKidController* KidController;
 
 	void BeginPlay() override;
 	void Tick(float DeltaTime) override;

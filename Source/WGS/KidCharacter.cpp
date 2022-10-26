@@ -12,7 +12,6 @@
 
 AKidCharacter::AKidCharacter()
 {
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -72,7 +71,8 @@ void AKidCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-	if (AKidController* KidController = Cast<AKidController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
+	KidController = Cast<AKidController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (GetKidController())
 	{
 		PlayerInputComponent->BindAction("Grab", IE_Pressed, KidController, &AKidController::InteractWithSelected);
 	}
@@ -80,9 +80,9 @@ void AKidCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 void AKidCharacter::MoveForward(float value)
 {
-	//if (!childController->CanMove())
-		//return;
-	// Find out which way is forward
+	if (!GetKidController()->CanMove())
+		return;
+	
 	const FRotator rotation = Controller->GetControlRotation();
 	const FRotator YawRotation(0.f, rotation.Yaw, 0.f);
 
@@ -92,9 +92,9 @@ void AKidCharacter::MoveForward(float value)
 
 void AKidCharacter::MoveRight(float value)
 {
-	//if (!childController->CanMove())
-		//return;
-	// Find out which way is forward
+	if (!GetKidController()->CanMove())
+		return;
+	
 	const FRotator rotation = Controller->GetControlRotation();
 	const FRotator YawRotation(0.f, rotation.Yaw, 0.f);
 
@@ -104,30 +104,29 @@ void AKidCharacter::MoveRight(float value)
 
 void AKidCharacter::Turn(float value)
 {
-	//if (!childController->CanMove())
-		//return;
+	if (!GetKidController()->CanMove())
+		return;
 	AddControllerPitchInput(-value);
 }
 
 void AKidCharacter::LookUp(float value)
 {
-	//if (!childController->CanMove())
-		//return;
+	if (!GetKidController()->CanMove())
+		return;
 	AddControllerYawInput(value);
 }
 
 void AKidCharacter::TurnAtRate(float rate)
 {
-	//if (!childController->CanMove())
-		//return;
+	if (!GetKidController()->CanMove())
+		return;
 	AddControllerYawInput(rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 void AKidCharacter::LookUpAtRate(float rate)
 {
-	return;
-	//if (!childController->CanMove())
-		//return;
+	if (!GetKidController()->CanMove())
+		return;
 	AddControllerPitchInput(rate * BaseLookRate * GetWorld()->GetDeltaSeconds());
 }
 
@@ -166,6 +165,6 @@ void AKidCharacter::EndRunning()
 
 AKidController* AKidCharacter::GetKidController() const
 {
-	return Cast<AKidController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	return KidController;
 }
 
