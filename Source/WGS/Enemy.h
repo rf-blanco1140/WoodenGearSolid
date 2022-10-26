@@ -30,7 +30,7 @@ public:
 	UStaticMeshComponent* ActionableRange;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* PersonalSpace;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enemy Values")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Values")
 	float AlertTime;
 
 	UFUNCTION()
@@ -64,9 +64,9 @@ class WGS_API ARotatingEnemy : public AEnemy
 
 public:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enemy Values")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Values")
 	float RotateTime;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enemy Values")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Values")
 	TArray<FRotator> Rotations;
 
 protected:

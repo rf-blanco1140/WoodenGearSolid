@@ -10,12 +10,19 @@ void AKidController::BeginPlay()
 		PromptHUD->AddToViewport();
 		PromptHUD->SetVisibility(ESlateVisibility::Visible);
 		PromptHUD->SetDescriptionText(FString(""));
+		PromptHUD->StealthStateChanged(GetStealthState());
 	}
 	if (GameOverHUD_BP)
 	{
 		GameOverHUD = CreateWidget<UUserWidget>(this, GameOverHUD_BP);
 		GameOverHUD->AddToViewport();
 		GameOverHUD->SetVisibility(ESlateVisibility::Hidden);
+	}
+	if (InventoryHUD_BP)
+	{
+		InventoryHUD = Cast<UInventoryScreen>(CreateWidget<UUserWidget>(this, InventoryHUD_BP));
+		InventoryHUD->AddToViewport();
+		InventoryHUD->SetVisibility(ESlateVisibility::Visible);
 	}
 }
 
@@ -49,6 +56,7 @@ void AKidController::InteractWithSelected()
 void AKidController::CollectItem(FGameplayTag Item)
 {
 	CollectedKeys.Add(Item);
+	InventoryHUD->UpdateInventory(CollectedKeys);
 }
 
 bool AKidController::HasCollectedItem(FGameplayTag Item)
@@ -72,6 +80,7 @@ void AKidController::ToggleHiddingSpot(AHidingSpot* NewHidingSpot)
 		HidingSpot = NewHidingSpot;
 		OldHidingSpot->UpdateHidingVisuals();
 	}
+	PromptHUD->StealthStateChanged(GetStealthState());
 }
 
 EStealthState AKidController::GetStealthState() const
@@ -101,3 +110,17 @@ void UInteractionPrompt::SetDescriptionText(FString newText, bool bCanInteract)
 {
 	PromptChanged(newText, bCanInteract);
 }
+
+void UInventoryScreen::UpdateInventory(TArray<FGameplayTag>& OwnedKeys)
+{
+	int Index = 0;
+	for (FGameplayTag ItemKey : OwnedKeys)
+	{
+		if (Index >= Items.Num() || !ItemIcons.Contains(ItemKey))
+			return;
+
+		Items[Index]->UpdateItem(ItemIcons[ItemKey], ItemKey);
+		Index++;
+	}
+}
+
