@@ -20,8 +20,8 @@ AContextInteractable::AContextInteractable()
 void AContextInteractable::BeginPlay()
 {
 	Super::BeginPlay();
-	ActivationRange->OnComponentBeginOverlap.AddDynamic(this, &AContextInteractable::OnOverlapActivationBegin);
-	ActivationRange->OnComponentEndOverlap.AddDynamic(this, &AContextInteractable::OnOverlapActivationEnd);
+	ActivationRange->OnComponentBeginOverlap.AddDynamic(this, &AContextInteractable::OnOverlapRangeBegin);
+	ActivationRange->OnComponentEndOverlap.AddDynamic(this, &AContextInteractable::OnOverlapRangeEnd);
 	player = nullptr;
 }
 
@@ -64,7 +64,7 @@ FString AContextInteractable::GetPromptText()
 }
 
 
-void AContextInteractable::OnOverlapActivationBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AContextInteractable::OnOverlapRangeBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (finished)
 		return;
@@ -83,7 +83,7 @@ void AContextInteractable::OnOverlapActivationBegin(UPrimitiveComponent* Overlap
 
 }
 
-void AContextInteractable::OnOverlapActivationEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void AContextInteractable::OnOverlapRangeEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if (OtherActor)
 	{

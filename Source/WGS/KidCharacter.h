@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CoreMinimal.h"
+#include <CoreMinimal.h>
 #include "GameFramework/Character.h"
 #include "KidCharacter.generated.h"
 
@@ -14,35 +14,30 @@ public:
 	AKidCharacter();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
-		class USpringArmComponent* CameraBoom;
+	class USpringArmComponent* CameraBoom;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
-		class UCameraComponent* FollowCamera;
+	class UCameraComponent* FollowCamera;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
-		float BaseTurnRate;
+	float BaseTurnRate;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
-		float BaseLookRate;
+	float BaseLookRate;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kid")
-		float RegularHeight;
+	float RegularHeight;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kid")
-		float CrouchingHeight;
+	float CrouchingHeight;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kid")
-		float NormalSpeed;
+	float NormalSpeed;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kid")
-		float SprintSpeed;
+	float SprintSpeed;
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 	bool bIsCrouching;
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	class AKidController* GetKidController();
+	void BeginPlay() override;
+	void Tick(float DeltaTime) override;
+	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void MoveForward(float value);
 	void MoveRight(float value);
@@ -51,8 +46,12 @@ public:
 	void TurnAtRate(float rate);
 	void LookUpAtRate(float rate);
 	void ToggleCrouching();
-	UFUNCTION()
-	void CheckRoof(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	void StartRunning();
 	void EndRunning();
+	
+	UFUNCTION()
+	void CheckRoof(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+public:
+	class AKidController* GetKidController() const;
 };

@@ -71,6 +71,41 @@ bool AKidController::HasCollectedItem(FGameplayTag Item)
 	return CollectedKeys.Contains(Item);
 }
 
+void AKidController::ToggleHiddingSpot(AHidingSpot* NewHidingSpot)
+{
+	if (HidingSpot == nullptr)
+	{
+		HidingSpot = NewHidingSpot;
+	}
+	else if (NewHidingSpot == HidingSpot)
+	{
+		HidingSpot = nullptr;
+	}
+	else
+	{
+		AHidingSpot* OldHidingSpot = HidingSpot;
+		HidingSpot = NewHidingSpot;
+		OldHidingSpot->UpdateHidingVisuals();
+	}
+}
+
+EStealthState AKidController::GetStealthState() const
+{
+	if (HidingSpot == nullptr)
+	{
+		return EStealthState::Exposed;
+	}
+	else
+	{
+		return HidingSpot->GetHidingLevel();
+	}
+}
+
+AHidingSpot* AKidController::GetCurrentHidingSpot() const
+{
+	return HidingSpot;
+}
+
 void UInteractionPrompt::SetDescriptionText(FString newText, bool bCanInteract)
 {
 	PromptChanged(newText, bCanInteract);

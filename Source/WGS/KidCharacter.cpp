@@ -164,7 +164,8 @@ void AKidCharacter::EndRunning()
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 }
 
-AKidController* AKidCharacter::GetKidController()
+AKidController* AKidCharacter::GetKidController() const
 {
 	return Cast<AKidController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 }
+

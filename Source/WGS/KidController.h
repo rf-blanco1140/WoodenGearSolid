@@ -1,8 +1,9 @@
 #pragma once
 
-#include "CoreMinimal.h"
+#include <CoreMinimal.h>
 #include "GameFramework/PlayerController.h"
 #include "GameplayTagsManager.h"
+#include "HidingSpot.h"
 #include "GameplayTagContainer.h"
 #include "Blueprint/UserWidget.h"
 #include "KidController.generated.h"
@@ -20,6 +21,8 @@ private:
 	TArray<FGameplayTag> CollectedKeys;
 	UPROPERTY()
 	AContextInteractable* CurrentInteractable;
+	UPROPERTY()
+	AHidingSpot* HidingSpot;
 
 protected:
 	// Called when the game starts or when spawned
@@ -27,12 +30,16 @@ protected:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widgets)
-		TSubclassOf<UInteractionPrompt> PromptHUD_BP;
+	TSubclassOf<UInteractionPrompt> PromptHUD_BP;
 	bool CanMove();
 	void ChangeObjectSelected(AContextInteractable*);
 	void InteractWithSelected();
 	void CollectItem(FGameplayTag);
 	bool HasCollectedItem(FGameplayTag);
+
+	void ToggleHiddingSpot(AHidingSpot*);
+	EStealthState GetStealthState() const;
+	AHidingSpot* GetCurrentHidingSpot() const;
 };
 
 UCLASS()
