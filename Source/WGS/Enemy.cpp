@@ -30,6 +30,7 @@ void AEnemy::BeginPlay()
 	FieldOfView->OnComponentEndOverlap.AddDynamic(this, &AEnemy::ExitedFieldOfView);
 	ActionableRange->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::EnteredCatchingRange);
 	PersonalSpace->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::EnteredCatchingRange);
+	UpdateAlertState(0);
 }
 
 void AEnemy::Tick(float DeltaTime)
@@ -39,7 +40,7 @@ void AEnemy::Tick(float DeltaTime)
 	if (CurrentState == EEnemyState::ActiveAlert)
 	{
 		CurrentAlertDelay += DeltaTime;
-		UpdateAlertIndicator();
+		UpdateAlertState(CurrentAlertDelay / AlertTime);
 		if (CurrentAlertDelay >= AlertTime)
 		{
 			KidController->GameOver();
@@ -48,7 +49,7 @@ void AEnemy::Tick(float DeltaTime)
 	else if (CurrentState == EEnemyState::PassiveAlert)
 	{
 		CurrentAlertDelay -= DeltaTime;
-		UpdateAlertIndicator();
+		UpdateAlertState(CurrentAlertDelay / AlertTime);
 		if (CurrentAlertDelay <= 0)
 		{
 			CurrentState = EEnemyState::Idle;
@@ -101,6 +102,26 @@ void AEnemy::EnteredCatchingRange(UPrimitiveComponent* OverlappedComponent, AAct
 		if (AKidCharacter* newCollision = Cast<AKidCharacter>(OtherActor))
 		{
 			newCollision->GetKidController()->GameOver();
+		}
+	}
+}
+
+void ARotatingEnemy::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (CurrentState == EEnemyState::Idle)
+	{
+		CurrentRotateDelay += DeltaTime;
+		if (CurrentRotateDelay >= RotateTime)
+		{
+			CurrentRotateDelay = 0;
+			RotationIndex++;
+			if (RotationIndex >= Rotations.Num())
+			{
+				RotationIndex = 0;
+			}
+			SetActorRotation(Rotations[RotationIndex]);
 		}
 	}
 }

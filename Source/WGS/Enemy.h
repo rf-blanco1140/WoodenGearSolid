@@ -1,6 +1,7 @@
 #pragma once
 
 #include <CoreMinimal.h>
+#include "Blueprint/UserWidget.h"
 #include "GameFramework/Character.h"
 #include "Enemy.generated.h"
 
@@ -12,6 +13,8 @@ enum class EEnemyState : uint8
 	PassiveAlert,
 };
 
+class UStaticMeshComponent;
+
 UCLASS()
 class WGS_API AEnemy : public ACharacter
 {
@@ -22,11 +25,11 @@ public:
 	AEnemy();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UStaticMeshComponent* FieldOfView;
+	UStaticMeshComponent* FieldOfView;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UStaticMeshComponent* ActionableRange;
+	UStaticMeshComponent* ActionableRange;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UStaticMeshComponent* PersonalSpace;
+	UStaticMeshComponent* PersonalSpace;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enemy Values")
 	float AlertTime;
 
@@ -40,7 +43,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void ToggleStateVisuals();
 	UFUNCTION(BlueprintImplementableEvent)
-	void UpdateAlertIndicator();
+	void UpdateAlertState(float Percentage);
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
@@ -49,7 +52,39 @@ protected:
 	float CurrentAlertDelay;
 	UPROPERTY()
 	class AKidController* KidController;
-	// Called when the game starts or when spawned
+	
 	virtual void BeginPlay() override;
 	void Tick(float DeltaTime) override;
+};
+
+UCLASS()
+class WGS_API ARotatingEnemy : public AEnemy
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enemy Values")
+	float RotateTime;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enemy Values")
+	TArray<FRotator> Rotations;
+
+protected:
+	
+	UPROPERTY(BlueprintReadOnly)
+	float CurrentRotateDelay;
+	UPROPERTY(BlueprintReadOnly)
+	int RotationIndex;
+	
+	void Tick(float DeltaTime) override;
+};
+
+UCLASS()
+class WGS_API UAlertIndicator : public UUserWidget
+{
+	GENERATED_BODY()
+
+public:
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void UpdateAlertIndicator(const float Percentage);
 };
