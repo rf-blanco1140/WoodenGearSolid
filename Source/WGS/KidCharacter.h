@@ -33,7 +33,7 @@ public:
 	float SprintSpeed;
 
 protected:
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	bool bIsCrouching;
 	UPROPERTY()
 	class AKidController* KidController;
