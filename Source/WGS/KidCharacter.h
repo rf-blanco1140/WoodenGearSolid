@@ -31,6 +31,10 @@ public:
 	float BaseTurnRate;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
 	float BaseLookRate;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
+	float MinPitch;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
+	float MaxPitch;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kid")
 	float RegularHeight;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kid")

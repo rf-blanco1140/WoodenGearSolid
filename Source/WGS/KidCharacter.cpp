@@ -9,6 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 AKidCharacter::AKidCharacter()
 {
@@ -42,6 +43,9 @@ void AKidCharacter::BeginPlay()
 	CurrentState = EKidState::Walking;
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AKidCharacter::CheckRoof);
+
+	UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMin = MinPitch;
+	UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = MaxPitch;
 }
 
 // Called every frame
