@@ -136,11 +136,13 @@ void AKidCharacter::ToggleCrouching()
 	{
 		bIsCrouching = false;
 		GetCapsuleComponent()->SetCapsuleHalfHeight(RegularHeight / 2, false);
+		GetMesh()->SetRelativeLocation(FVector(0,0, -RegularHeight / 2), false);
 	}
 	else
 	{
 		bIsCrouching = true;
 		GetCapsuleComponent()->SetCapsuleHalfHeight(CrouchingHeight / 2, true);
+		GetMesh()->SetRelativeLocation(FVector(0,0, -CrouchingHeight / 2), false);
 	}
 }
 
@@ -150,6 +152,7 @@ void AKidCharacter::CheckRoof(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 	if (Hit.Normal == FVector(0,0,-1))
 	{
 		GetCapsuleComponent()->SetCapsuleHalfHeight(CrouchingHeight / 2, true);
+		GetMesh()->SetRelativeLocation(FVector(0, 0, -CrouchingHeight / 2), false);
 		bIsCrouching = true;
 	}
 }
