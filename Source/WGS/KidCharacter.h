@@ -4,6 +4,14 @@
 #include "GameFramework/Character.h"
 #include "KidCharacter.generated.h"
 
+UENUM(BlueprintType)
+enum class EKidState : uint8
+{
+	Walking,
+	Crouching,
+	Climbing,
+};
+
 UCLASS()
 class WGS_API AKidCharacter : public ACharacter
 {
@@ -34,7 +42,7 @@ public:
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
-	bool bIsCrouching;
+	EKidState CurrentState;
 	UPROPERTY()
 	class AKidController* KidController;
 
@@ -51,10 +59,15 @@ protected:
 	void ToggleCrouching();
 	void StartRunning();
 	void EndRunning();
+	void Jump();
 	
 	UFUNCTION()
 	void CheckRoof(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 public:
+	void StartClimbing();
+	void StopClimbing();
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	EKidState GetCurrentState();
 	class AKidController* GetKidController() const;
 };

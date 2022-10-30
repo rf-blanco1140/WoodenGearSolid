@@ -3,6 +3,8 @@
 #include "KidController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
+#include "Components/ArrowComponent.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 AContextInteractable::AContextInteractable()
@@ -25,11 +27,6 @@ void AContextInteractable::BeginPlay()
 	player = nullptr;
 }
 
-bool AContextInteractable::IsFinished()
-{
-	return finished;
-}
-
 bool AContextInteractable::CanInteract()
 {
 	return true;
@@ -38,15 +35,23 @@ bool AContextInteractable::CanInteract()
 bool AContextInteractable::InteractWith()
 {
 	return CanInteract();
-	//InteractionFinished.Broadcast();
 }
+
+void AContextInteractable::DettachInteraction()
+{
+	player->ChangeObjectSelected(this);
+	kid = nullptr;
+	player = nullptr;
+	UpdatePlayerInRange(false);
+}
+
 
 void AContextInteractable::FinishInteraction()
 {
-	finished = true;
 	ActivationRange->SetCollisionResponseToAllChannels(ECR_Ignore);
+	
+	DettachInteraction();
 	UpdateFinishedVisuals();
-	UpdatePlayerInRange(false);
 }
 
 FString AContextInteractable::GetPromptText()
@@ -57,14 +62,15 @@ FString AContextInteractable::GetPromptText()
 
 void AContextInteractable::OnOverlapRangeBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (finished)
+	if (!CanInteract())
 		return;
 
 	if (OtherActor)
 	{
 		if (AKidCharacter* newCollision = Cast<AKidCharacter>(OtherActor))
 		{
-			player = newCollision->GetKidController();
+			kid = newCollision;
+			player = kid->GetKidController();
 			if (player != nullptr)
 			{
 				player->ChangeObjectSelected(this);
@@ -77,15 +83,15 @@ void AContextInteractable::OnOverlapRangeBegin(UPrimitiveComponent* OverlappedCo
 
 void AContextInteractable::OnOverlapRangeEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	if (!CanInteract())
+		return;
+
 	if (OtherActor)
 	{
 		AKidCharacter* newCollision = Cast<AKidCharacter>(OtherActor);
-		if (newCollision && player != nullptr && (!finished))
+		if (newCollision && player != nullptr)
 		{
-			//player->PlayerCharacterController->ToggleInteractPrompt(false);
-			player->ChangeObjectSelected(this);
-			player = nullptr;
-			UpdatePlayerInRange(false);
+			DettachInteraction();
 		}
 	}
 }
@@ -103,6 +109,7 @@ bool ACollectableInteractable::InteractWith()
 	}
 
 	player->CollectItem(InteractionTag);
+	finished = true;
 	FinishInteraction();
 	return true;
 }
@@ -128,6 +135,7 @@ bool ALockedInteractable::InteractWith()
 		return false;
 	}
 
+	finished = true;
 	FinishInteraction();
 	return true;
 }
@@ -139,4 +147,55 @@ FString ALockedInteractable::GetPromptText()
 		return FString("Use " + Item->ScreenName.ToString() + " to unlock");
 	}
 	return FString("Use " + InteractionTag.ToString() + " to unlock");
+}
+
+AClimbingSurface::AClimbingSurface()
+{
+	PrimaryActorTick.bCanEverTick = true;
+
+	SurfaceTop = CreateDefaultSubobject<UArrowComponent>(TEXT("Surface top"));
+	SurfaceTop->SetupAttachment(RootComponent);
+
+	TopDetectionRange = CreateDefaultSubobject<UBoxComponent>(TEXT("Top Detection Range"));
+	TopDetectionRange->SetCollisionResponseToAllChannels(ECR_Ignore);
+	TopDetectionRange->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	TopDetectionRange->SetupAttachment(RootComponent);
+}
+
+void AClimbingSurface::BeginPlay()
+{
+	Super::BeginPlay();
+	TopDetectionRange->OnComponentBeginOverlap.AddDynamic(this, &AClimbingSurface::OnReachedTop);
+}
+
+bool AClimbingSurface::InteractWith()
+{
+	if (!CanInteract() || kid->GetCurrentState() == EKidState::Climbing)
+	{
+		return false;
+	}
+
+	kid->StartClimbing();
+	DettachInteraction();
+	return true;
+}
+
+void AClimbingSurface::OnReachedTop(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor)
+	{
+		if (AKidCharacter* newCollision = Cast<AKidCharacter>(OtherActor))
+		{
+			if (newCollision->GetCurrentState() != EKidState::Climbing)
+				return;
+
+			newCollision->SetActorLocation(SurfaceTop->GetComponentLocation());
+			newCollision->StopClimbing();
+		}
+	}
+}
+
+FString AClimbingSurface::GetPromptText()
+{
+	return FString("Start climbing");
 }

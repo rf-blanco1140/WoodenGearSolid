@@ -38,14 +38,16 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	UPROPERTY(BlueprintReadOnly)
-	bool finished;
+	
+	UPROPERTY()
+	class AKidCharacter* kid;
 	UPROPERTY()
 	class AKidController* player;
 
 public:
 	virtual bool CanInteract();
 	virtual bool InteractWith();
+	virtual void DettachInteraction();
 	void FinishInteraction();
 	virtual FString GetPromptText();
 	bool IsFinished();
@@ -71,7 +73,9 @@ class WGS_API ACollectableInteractable : public AContextInteractable
 public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Interaction")
 	FGameplayTag InteractionTag;
-
+	UPROPERTY(BlueprintReadOnly)
+	bool finished;
+	
 	bool CanInteract() override;
 	bool InteractWith() override;
 	FString GetPromptText() override;
@@ -85,9 +89,32 @@ class WGS_API ALockedInteractable : public AContextInteractable
 public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Interaction")
 	FGameplayTag InteractionTag;
+	UPROPERTY(BlueprintReadOnly)
+	bool finished;
 
 	bool CanInteract() override;
 	bool InteractWith() override;
 	FString GetPromptText() override;
+};
+
+UCLASS()
+class WGS_API AClimbingSurface : public AContextInteractable
+{
+	GENERATED_BODY()
+
+public:
+	AClimbingSurface();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class UArrowComponent* SurfaceTop;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class UBoxComponent* TopDetectionRange;
+
+	void BeginPlay() override;
+
+	bool InteractWith() override;
+	FString GetPromptText() override;
+	UFUNCTION()
+	void OnReachedTop(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };
 

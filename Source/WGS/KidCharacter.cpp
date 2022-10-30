@@ -39,7 +39,7 @@ void AKidCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	GetCapsuleComponent()->SetCapsuleHalfHeight(RegularHeight / 2, true);
-	bIsCrouching = false;
+	CurrentState = EKidState::Walking;
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AKidCharacter::CheckRoof);
 }
@@ -68,7 +68,7 @@ void AKidCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AKidCharacter::StartRunning);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AKidCharacter::EndRunning);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AKidCharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	KidController = Cast<AKidController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
@@ -78,21 +78,39 @@ void AKidCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	}
 }
 
+void AKidCharacter::Jump()
+{
+	if (!GetKidController()->CanMove() || CurrentState == EKidState::Climbing)
+		return;
+
+	Super::Jump();
+}
+
 void AKidCharacter::MoveForward(float value)
 {
 	if (!GetKidController()->CanMove())
 		return;
-	
-	const FRotator rotation = Controller->GetControlRotation();
-	const FRotator YawRotation(0.f, rotation.Yaw, 0.f);
+	if (value == 0)
+		return;
 
-	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	AddMovementInput(Direction, value);
+	if (CurrentState == EKidState::Climbing)
+	{
+		FHitResult HitResult;
+		SetActorLocation(GetActorLocation() + FVector::ZAxisVector * value, true, &HitResult);
+	}
+	else
+	{
+		const FRotator rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0.f, rotation.Yaw, 0.f);
+
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		AddMovementInput(Direction, value);
+	}
 }
 
 void AKidCharacter::MoveRight(float value)
 {
-	if (!GetKidController()->CanMove())
+	if (!GetKidController()->CanMove() || CurrentState == EKidState::Climbing)
 		return;
 	
 	const FRotator rotation = Controller->GetControlRotation();
@@ -132,19 +150,44 @@ void AKidCharacter::LookUpAtRate(float rate)
 
 void AKidCharacter::ToggleCrouching()
 {
-	if (bIsCrouching)
+	if (CurrentState == EKidState::Crouching)
 	{
-		bIsCrouching = false;
+		CurrentState = EKidState::Walking;
 		GetCapsuleComponent()->SetCapsuleHalfHeight(RegularHeight / 2, false);
 		GetMesh()->SetRelativeLocation(FVector(0,0, -RegularHeight / 2), false);
 	}
 	else
 	{
-		bIsCrouching = true;
+		CurrentState = EKidState::Crouching;
 		GetCapsuleComponent()->SetCapsuleHalfHeight(CrouchingHeight / 2, true);
 		GetMesh()->SetRelativeLocation(FVector(0,0, -CrouchingHeight / 2), false);
 	}
 }
+
+void AKidCharacter::StartClimbing()
+{
+	if (CurrentState == EKidState::Crouching)
+	{
+		GetCapsuleComponent()->SetCapsuleHalfHeight(RegularHeight / 2, false);
+		GetMesh()->SetRelativeLocation(FVector(0, 0, -RegularHeight / 2), false);
+	}
+	
+	GetCharacterMovement()->Deactivate();
+	CurrentState = EKidState::Climbing;
+
+}
+
+void AKidCharacter::StopClimbing()
+{
+	GetCharacterMovement()->Activate();
+	CurrentState = EKidState::Walking;
+}
+
+EKidState AKidCharacter::GetCurrentState()
+{
+	return CurrentState;
+}
+
 
 void AKidCharacter::CheckRoof(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -153,7 +196,11 @@ void AKidCharacter::CheckRoof(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 	{
 		GetCapsuleComponent()->SetCapsuleHalfHeight(CrouchingHeight / 2, true);
 		GetMesh()->SetRelativeLocation(FVector(0, 0, -CrouchingHeight / 2), false);
-		bIsCrouching = true;
+		CurrentState = EKidState::Crouching;
+	}
+	else if (Hit.Normal == FVector(0, 0, 1) && CurrentState == EKidState::Climbing)
+	{
+		StopClimbing();
 	}
 }
 
