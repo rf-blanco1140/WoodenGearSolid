@@ -4,11 +4,23 @@
 #include "GameFramework/Actor.h"
 #include "GameplayTagsManager.h"
 #include "GameplayTagContainer.h"
+#include "Engine/DataTable.h"
 #include "ContextInteractable.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FInteractionFinished);
-UCLASS()
 
+USTRUCT(BlueprintType)
+struct WGS_API FInteractableType : public FTableRowBase
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FGameplayTag InteractionTag;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FName ScreenName;
+};
+
+UCLASS()
 class WGS_API AContextInteractable : public AActor
 {
 	GENERATED_BODY()
@@ -19,6 +31,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UBoxComponent* ActivationRange;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UDataTable* TagData;
 
 protected:
 	// Called when the game starts or when spawned

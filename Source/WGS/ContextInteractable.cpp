@@ -109,6 +109,10 @@ bool ACollectableInteractable::InteractWith()
 
 FString ACollectableInteractable::GetPromptText()
 {
+	if (FInteractableType* Item = TagData->FindRow<FInteractableType>(FName(InteractionTag.ToString()), ""))
+	{
+		return FString("Press button to collect " + Item->ScreenName.ToString());
+	}
 	return FString("Press button to collect " + InteractionTag.ToString());
 }
 
@@ -130,5 +134,9 @@ bool ALockedInteractable::InteractWith()
 
 FString ALockedInteractable::GetPromptText()
 {
+	if (FInteractableType* Item = TagData->FindRow<FInteractableType>(FName(InteractionTag.ToString()), ""))
+	{
+		return FString("Use " + Item->ScreenName.ToString() + " to unlock");
+	}
 	return FString("Use " + InteractionTag.ToString() + " to unlock");
 }
