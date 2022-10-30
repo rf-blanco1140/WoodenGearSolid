@@ -24,23 +24,20 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	UPROPERTY(BlueprintReadOnly)
-	bool activated;
-	UPROPERTY(BlueprintReadOnly)
 	bool finished;
 	UPROPERTY()
 	class AKidController* player;
 
 public:
-	virtual void Activate();
 	virtual bool CanInteract();
 	virtual bool InteractWith();
 	void FinishInteraction();
 	virtual FString GetPromptText();
-	bool IsActivated();
 	bool IsFinished();
 	UFUNCTION(BlueprintImplementableEvent)
+	void UpdatePlayerInRange(bool InRange);
+	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateFinishedVisuals();
-
 
 	UPROPERTY(BlueprintAssignable)
 	FInteractionFinished InteractionFinished;

@@ -3,6 +3,7 @@
 #include "KidController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/CapsuleComponent.h"
 
 AEnemy::AEnemy()
 {
@@ -20,6 +21,8 @@ AEnemy::AEnemy()
 	PersonalSpace->SetCollisionResponseToAllChannels(ECR_Ignore);
 	PersonalSpace->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	PersonalSpace->SetupAttachment(RootComponent);
+
+	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
 }
 
 void AEnemy::BeginPlay()

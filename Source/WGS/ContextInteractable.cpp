@@ -25,19 +25,9 @@ void AContextInteractable::BeginPlay()
 	player = nullptr;
 }
 
-bool AContextInteractable::IsActivated()
-{
-	return activated;
-}
-
 bool AContextInteractable::IsFinished()
 {
 	return finished;
-}
-
-void AContextInteractable::Activate()
-{
-	activated = true;
 }
 
 bool AContextInteractable::CanInteract()
@@ -56,6 +46,7 @@ void AContextInteractable::FinishInteraction()
 	finished = true;
 	ActivationRange->SetCollisionResponseToAllChannels(ECR_Ignore);
 	UpdateFinishedVisuals();
+	UpdatePlayerInRange(false);
 }
 
 FString AContextInteractable::GetPromptText()
@@ -77,6 +68,7 @@ void AContextInteractable::OnOverlapRangeBegin(UPrimitiveComponent* OverlappedCo
 			if (player != nullptr)
 			{
 				player->ChangeObjectSelected(this);
+				UpdatePlayerInRange(true);
 			}
 		}
 	}
@@ -88,11 +80,12 @@ void AContextInteractable::OnOverlapRangeEnd(UPrimitiveComponent* OverlappedComp
 	if (OtherActor)
 	{
 		AKidCharacter* newCollision = Cast<AKidCharacter>(OtherActor);
-		if (newCollision && player != nullptr && (!activated || !finished))
+		if (newCollision && player != nullptr && (!finished))
 		{
 			//player->PlayerCharacterController->ToggleInteractPrompt(false);
 			player->ChangeObjectSelected(this);
 			player = nullptr;
+			UpdatePlayerInRange(false);
 		}
 	}
 }
