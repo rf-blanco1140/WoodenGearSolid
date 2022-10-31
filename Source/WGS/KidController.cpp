@@ -31,6 +31,12 @@ bool AKidController::CanMove()
 	return bIsPlaying;
 }
 
+AContextInteractable* AKidController::GetObjectSelected() const
+{
+	return CurrentInteractable;
+}
+
+
 void AKidController::ChangeObjectSelected(AContextInteractable* Interactable)
 {
 	if (CurrentInteractable == nullptr || CurrentInteractable != Interactable)

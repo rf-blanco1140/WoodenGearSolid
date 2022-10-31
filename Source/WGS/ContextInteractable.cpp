@@ -27,6 +27,11 @@ void AContextInteractable::BeginPlay()
 	player = nullptr;
 }
 
+bool AContextInteractable::CanOverlap()
+{
+	return true;
+}
+
 bool AContextInteractable::CanInteract()
 {
 	return true;
@@ -39,7 +44,10 @@ bool AContextInteractable::InteractWith()
 
 void AContextInteractable::DettachInteraction()
 {
-	player->ChangeObjectSelected(this);
+	if (player->GetObjectSelected() == this)
+	{
+		player->ChangeObjectSelected(this);
+	}
 	kid = nullptr;
 	player = nullptr;
 	UpdatePlayerInRange(false);
@@ -62,7 +70,7 @@ FString AContextInteractable::GetPromptText()
 
 void AContextInteractable::OnOverlapRangeBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!CanInteract())
+	if (!CanOverlap())
 		return;
 
 	if (OtherActor)
@@ -83,7 +91,7 @@ void AContextInteractable::OnOverlapRangeBegin(UPrimitiveComponent* OverlappedCo
 
 void AContextInteractable::OnOverlapRangeEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (!CanInteract())
+	if (!CanOverlap())
 		return;
 
 	if (OtherActor)
@@ -94,6 +102,11 @@ void AContextInteractable::OnOverlapRangeEnd(UPrimitiveComponent* OverlappedComp
 			DettachInteraction();
 		}
 	}
+}
+
+bool ACollectableInteractable::CanOverlap()
+{
+	return !finished;
 }
 
 bool ACollectableInteractable::CanInteract()
@@ -123,9 +136,14 @@ FString ACollectableInteractable::GetPromptText()
 	return FString("Press button to collect " + InteractionTag.ToString());
 }
 
+bool ALockedInteractable::CanOverlap()
+{
+	return !finished;
+}
+
 bool ALockedInteractable::CanInteract()
 {
-	return !finished && player->HasCollectedItem(InteractionTag);
+	return !finished && player != nullptr && player->HasCollectedItem(InteractionTag);
 }
 
 bool ALockedInteractable::InteractWith()
@@ -168,9 +186,14 @@ void AClimbingSurface::BeginPlay()
 	TopDetectionRange->OnComponentBeginOverlap.AddDynamic(this, &AClimbingSurface::OnReachedTop);
 }
 
+bool AClimbingSurface::CanInteract()
+{
+	return kid != nullptr || kid->GetCurrentState() == EKidState::Climbing;
+}
+
 bool AClimbingSurface::InteractWith()
 {
-	if (!CanInteract() || kid->GetCurrentState() == EKidState::Climbing)
+	if (!CanInteract())
 	{
 		return false;
 	}

@@ -45,6 +45,7 @@ protected:
 	class AKidController* player;
 
 public:
+	virtual bool CanOverlap();
 	virtual bool CanInteract();
 	virtual bool InteractWith();
 	virtual void DettachInteraction();
@@ -76,6 +77,7 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	bool finished;
 	
+	bool CanOverlap() override;
 	bool CanInteract() override;
 	bool InteractWith() override;
 	FString GetPromptText() override;
@@ -92,6 +94,7 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	bool finished;
 
+	bool CanOverlap() override;
 	bool CanInteract() override;
 	bool InteractWith() override;
 	FString GetPromptText() override;
@@ -112,6 +115,7 @@ public:
 
 	void BeginPlay() override;
 
+	bool CanInteract() override;
 	bool InteractWith() override;
 	FString GetPromptText() override;
 	UFUNCTION()

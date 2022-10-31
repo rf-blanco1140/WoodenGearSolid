@@ -43,6 +43,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widgets)
 	TSubclassOf<UUserWidget> GameOverHUD_BP;
 	bool CanMove();
+	AContextInteractable* GetObjectSelected() const;
 	void ChangeObjectSelected(AContextInteractable*);
 	void InteractWithSelected();
 	void CollectItem(FGameplayTag);
