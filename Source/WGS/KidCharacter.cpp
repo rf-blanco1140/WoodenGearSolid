@@ -18,11 +18,11 @@ AKidCharacter::AKidCharacter()
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetRootComponent());
 	CameraBoom->TargetArmLength = 0.f; // Camera follows at this distance
-	CameraBoom->bUsePawnControlRotation = true; // Rotate arm based on controller
+	CameraBoom->bUsePawnControlRotation = false; // Rotate arm based on controller
 
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-	FollowCamera->bUsePawnControlRotation = false;
+	FollowCamera->bUsePawnControlRotation = true;
 
 	BaseTurnRate = 65.f;
 	BaseLookRate = 65.f;
@@ -62,11 +62,8 @@ void AKidCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("Move Forward / Backward", this, &AKidCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("Move Right / Left", this, &AKidCharacter::MoveRight);
 
-	PlayerInputComponent->BindAxis("Turn Right / Left Gamepad", this, &AKidCharacter::Turn);
-	PlayerInputComponent->BindAxis("Look Up / Down Gamepad", this, &AKidCharacter::LookUp);
-
-	PlayerInputComponent->BindAxis("Turn Right / Left Mouse", this, &AKidCharacter::TurnAtRate);
-	PlayerInputComponent->BindAxis("Look Up / Down Mouse", this, &AKidCharacter::LookUpAtRate);
+	PlayerInputComponent->BindAxis("Turn Right / Left Mouse", this, &AKidCharacter::Turn);
+	PlayerInputComponent->BindAxis("Look Up / Down Mouse", this, &AKidCharacter::LookUp);
 
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AKidCharacter::ToggleCrouching);
 
@@ -100,7 +97,7 @@ void AKidCharacter::MoveForward(float value)
 	if (CurrentState == EKidState::Climbing)
 	{
 		FHitResult HitResult;
-		SetActorLocation(GetActorLocation() + FVector::ZAxisVector * value, true, &HitResult);
+		SetActorLocation(GetActorLocation() + FVector::ZAxisVector * value * ClimbingSpeed, true, &HitResult);
 	}
 	else
 	{
@@ -128,28 +125,14 @@ void AKidCharacter::Turn(float value)
 {
 	if (!GetKidController()->CanMove())
 		return;
-	AddControllerPitchInput(-value);
+	AddControllerYawInput(value);
 }
 
 void AKidCharacter::LookUp(float value)
 {
 	if (!GetKidController()->CanMove())
 		return;
-	AddControllerYawInput(value);
-}
-
-void AKidCharacter::TurnAtRate(float rate)
-{
-	if (!GetKidController()->CanMove())
-		return;
-	AddControllerYawInput(rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
-}
-
-void AKidCharacter::LookUpAtRate(float rate)
-{
-	if (!GetKidController()->CanMove())
-		return;
-	AddControllerPitchInput(rate * BaseLookRate * GetWorld()->GetDeltaSeconds());
+	AddControllerPitchInput(value);
 }
 
 void AKidCharacter::ToggleCrouching()

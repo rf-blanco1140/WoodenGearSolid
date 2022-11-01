@@ -43,6 +43,8 @@ public:
 	float NormalSpeed;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kid")
 	float SprintSpeed;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Kid")
+	float ClimbingSpeed = 1;
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
@@ -58,8 +60,6 @@ protected:
 	void MoveRight(float value);
 	void LookUp(float value);
 	void Turn(float value);
-	void TurnAtRate(float rate);
-	void LookUpAtRate(float rate);
 	void ToggleCrouching();
 	void StartRunning();
 	void EndRunning();
