@@ -96,8 +96,7 @@ void AKidCharacter::MoveForward(float value)
 
 	if (CurrentState == EKidState::Climbing)
 	{
-		FHitResult HitResult;
-		SetActorLocation(GetActorLocation() + FVector::ZAxisVector * value * ClimbingSpeed, true, &HitResult);
+		SetActorLocation(GetActorLocation() + FVector::ZAxisVector * value * ClimbingSpeed);
 	}
 	else
 	{

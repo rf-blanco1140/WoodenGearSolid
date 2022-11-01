@@ -44,7 +44,7 @@ bool AContextInteractable::InteractWith()
 
 void AContextInteractable::DettachInteraction()
 {
-	if (player->GetObjectSelected() == this)
+	if (player != nullptr && player->GetObjectSelected() == this)
 	{
 		player->ChangeObjectSelected(this);
 	}
@@ -57,7 +57,7 @@ void AContextInteractable::DettachInteraction()
 void AContextInteractable::FinishInteraction()
 {
 	ActivationRange->SetCollisionResponseToAllChannels(ECR_Ignore);
-	
+
 	DettachInteraction();
 	UpdateFinishedVisuals();
 }
@@ -65,6 +65,25 @@ void AContextInteractable::FinishInteraction()
 FString AContextInteractable::GetPromptText()
 {
 	return FString("Press button to interact");
+}
+
+void AContextInteractable::KidEnteredRange(AKidCharacter* newCollision)
+{
+	kid = newCollision;
+	player = kid->GetKidController();
+	if (player != nullptr)
+	{
+		player->ChangeObjectSelected(this);
+		UpdatePlayerInRange(true);
+	}
+}
+
+void AContextInteractable::KidExitedRange(AKidCharacter* newCollision)
+{
+	if (player != nullptr)
+	{
+		DettachInteraction();
+	}
 }
 
 
@@ -77,13 +96,7 @@ void AContextInteractable::OnOverlapRangeBegin(UPrimitiveComponent* OverlappedCo
 	{
 		if (AKidCharacter* newCollision = Cast<AKidCharacter>(OtherActor))
 		{
-			kid = newCollision;
-			player = kid->GetKidController();
-			if (player != nullptr)
-			{
-				player->ChangeObjectSelected(this);
-				UpdatePlayerInRange(true);
-			}
+			KidEnteredRange(newCollision);
 		}
 	}
 
@@ -96,10 +109,9 @@ void AContextInteractable::OnOverlapRangeEnd(UPrimitiveComponent* OverlappedComp
 
 	if (OtherActor)
 	{
-		AKidCharacter* newCollision = Cast<AKidCharacter>(OtherActor);
-		if (newCollision && player != nullptr)
+		if (AKidCharacter* newCollision = Cast<AKidCharacter>(OtherActor))
 		{
-			DettachInteraction();
+			KidExitedRange(newCollision);
 		}
 	}
 }
@@ -173,22 +185,11 @@ AClimbingSurface::AClimbingSurface()
 
 	SurfaceTop = CreateDefaultSubobject<UArrowComponent>(TEXT("Surface top"));
 	SurfaceTop->SetupAttachment(RootComponent);
-
-	TopDetectionRange = CreateDefaultSubobject<UBoxComponent>(TEXT("Top Detection Range"));
-	TopDetectionRange->SetCollisionResponseToAllChannels(ECR_Ignore);
-	TopDetectionRange->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-	TopDetectionRange->SetupAttachment(RootComponent);
-}
-
-void AClimbingSurface::BeginPlay()
-{
-	Super::BeginPlay();
-	TopDetectionRange->OnComponentBeginOverlap.AddDynamic(this, &AClimbingSurface::OnReachedTop);
 }
 
 bool AClimbingSurface::CanInteract()
 {
-	return kid != nullptr || kid->GetCurrentState() == EKidState::Climbing;
+	return kid != nullptr && kid->GetCurrentState() != EKidState::Climbing;
 }
 
 bool AClimbingSurface::InteractWith()
@@ -198,24 +199,52 @@ bool AClimbingSurface::InteractWith()
 		return false;
 	}
 
+	FVector StartLocation = FVector(ActivationRange->GetComponentLocation().X, ActivationRange->GetComponentLocation().Y, GetClimbHeight() * 0.05 + GetClimbStart());
+	if (kid->GetActorLocation().Z > ActivationRange->GetComponentLocation().Z)
+	{
+		StartLocation.Z = GetClimbHeight() * 0.99 + GetClimbStart() - kid->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	}
+	kid->SetActorLocation(StartLocation);
 	kid->StartClimbing();
-	DettachInteraction();
 	return true;
 }
 
-void AClimbingSurface::OnReachedTop(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+float AClimbingSurface::GetClimbingPercentage()
 {
-	if (OtherActor)
-	{
-		if (AKidCharacter* newCollision = Cast<AKidCharacter>(OtherActor))
-		{
-			if (newCollision->GetCurrentState() != EKidState::Climbing)
-				return;
+	return (kid->GetActorLocation().Z - GetClimbStart()) / GetClimbHeight();
+}
 
-			newCollision->SetActorLocation(SurfaceTop->GetComponentLocation());
-			newCollision->StopClimbing();
+void AClimbingSurface::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (kid != nullptr && kid->GetCurrentState() == EKidState::Climbing)
+	{
+		if (GetClimbingPercentage() >= 1)
+		{
+			AKidCharacter* KidPtr = kid;
+			KidPtr->SetActorLocation(SurfaceTop->GetComponentLocation());
+			KidPtr->StopClimbing();
+			DettachInteraction();
+		}
+		else if (GetClimbingPercentage() <= 0)
+		{
+			AKidCharacter* KidPtr = kid;
+			KidPtr->SetActorLocation(FVector(ActivationRange->GetComponentLocation().X, ActivationRange->GetComponentLocation().Y, GetClimbStart()));
+			KidPtr->StopClimbing();
+			DettachInteraction();
 		}
 	}
+}
+
+float AClimbingSurface::GetClimbHeight()
+{
+	return ActivationRange->GetUnscaledBoxExtent().Z;
+}
+
+float AClimbingSurface::GetClimbStart()
+{
+	return ActivationRange->GetComponentLocation().Z - GetClimbHeight() / 2;
 }
 
 FString AClimbingSurface::GetPromptText()

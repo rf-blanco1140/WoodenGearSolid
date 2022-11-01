@@ -49,6 +49,8 @@ public:
 	virtual bool CanInteract();
 	virtual bool InteractWith();
 	virtual void DettachInteraction();
+	virtual void KidEnteredRange(AKidCharacter*);
+	virtual void KidExitedRange(AKidCharacter*);
 	void FinishInteraction();
 	virtual FString GetPromptText();
 	bool IsFinished();
@@ -61,7 +63,7 @@ public:
 	FInteractionFinished InteractionFinished;
 
 	UFUNCTION()
-	void OnOverlapRangeBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	virtual void OnOverlapRangeBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
 	void OnOverlapRangeEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 };
@@ -110,15 +112,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UArrowComponent* SurfaceTop;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	class UBoxComponent* TopDetectionRange;
-
-	void BeginPlay() override;
 
 	bool CanInteract() override;
 	bool InteractWith() override;
 	FString GetPromptText() override;
-	UFUNCTION()
-	void OnReachedTop(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+protected:
+	float GetClimbingPercentage();
+	void Tick(float DeltaTime) override;
+	float GetClimbHeight();
+	float GetClimbStart();
 };
 
