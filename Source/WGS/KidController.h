@@ -27,7 +27,7 @@ private:
 	UPROPERTY()
 	AContextInteractable* CurrentInteractable;
 	UPROPERTY()
-	AHidingSpot* HidingSpot;
+	TArray<AHidingSpot*> HidingSpots;
 	UPROPERTY()
 	bool bIsPlaying;
 
@@ -51,7 +51,7 @@ public:
 
 	void ToggleHiddingSpot(AHidingSpot*);
 	EStealthState GetStealthState() const;
-	AHidingSpot* GetCurrentHidingSpot() const;
+	TArray<AHidingSpot*> GetCurrentHidingSpots() const;
 	void GameOver();
 };
 

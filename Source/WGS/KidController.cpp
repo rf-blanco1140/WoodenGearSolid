@@ -72,38 +72,39 @@ bool AKidController::HasCollectedItem(FGameplayTag Item)
 
 void AKidController::ToggleHiddingSpot(AHidingSpot* NewHidingSpot)
 {
-	if (HidingSpot == nullptr)
+	if (HidingSpots.Contains(NewHidingSpot))
 	{
-		HidingSpot = NewHidingSpot;
+		HidingSpots.Remove(NewHidingSpot);
 	}
-	else if (NewHidingSpot == HidingSpot)
+	else 
 	{
-		HidingSpot = nullptr;
+		HidingSpots.Add(NewHidingSpot);
 	}
-	else
-	{
-		AHidingSpot* OldHidingSpot = HidingSpot;
-		HidingSpot = NewHidingSpot;
-		OldHidingSpot->UpdateHidingVisuals();
-	}
+	NewHidingSpot->UpdateHidingVisuals();
 	PromptHUD->StealthStateChanged(GetStealthState());
 }
 
 EStealthState AKidController::GetStealthState() const
 {
-	if (HidingSpot == nullptr)
+	EStealthState Best = EStealthState::Exposed;
+	for (AHidingSpot* Spot : HidingSpots)
 	{
-		return EStealthState::Exposed;
+		if (Spot->GetHidingLevel() == EStealthState::TotallyHidden)
+		{
+			Best = EStealthState::TotallyHidden;
+		}
+		else if (Spot->GetHidingLevel() == EStealthState::PartiallyHidden && Best == EStealthState::Exposed)
+		{
+			Best = EStealthState::PartiallyHidden;
+		}
 	}
-	else
-	{
-		return HidingSpot->GetHidingLevel();
-	}
+
+	return Best;
 }
 
-AHidingSpot* AKidController::GetCurrentHidingSpot() const
+TArray<AHidingSpot*> AKidController::GetCurrentHidingSpots() const
 {
-	return HidingSpot;
+	return HidingSpots;
 }
 
 void AKidController::GameOver()

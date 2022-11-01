@@ -62,5 +62,5 @@ EStealthState AHidingSpot::GetHidingLevel()
 
 bool AHidingSpot::IsHidingPlayer()
 {
-	return player != nullptr && player->GetCurrentHidingSpot() == this;
+	return player != nullptr && player->GetCurrentHidingSpots().Contains(this);
 }
