@@ -4,6 +4,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AEnemy::AEnemy()
 {
@@ -23,6 +24,7 @@ AEnemy::AEnemy()
 	PersonalSpace->SetupAttachment(RootComponent);
 
 	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
+	GetCharacterMovement()->GravityScale = 0;
 }
 
 void AEnemy::BeginPlay()
