@@ -140,13 +140,17 @@ void AKidCharacter::ToggleCrouching()
 	{
 		CurrentState = EKidState::Walking;
 		GetCapsuleComponent()->SetCapsuleHalfHeight(RegularHeight / 2, false);
+		FVector BodyLocation = GetMesh()->GetComponentLocation();
 		GetMesh()->SetRelativeLocation(FVector(0,0, -RegularHeight / 2), false);
+		SetActorLocation(BodyLocation);
 	}
 	else
 	{
 		CurrentState = EKidState::Crouching;
 		GetCapsuleComponent()->SetCapsuleHalfHeight(CrouchingHeight / 2, true);
+		FVector BodyLocation = GetMesh()->GetComponentLocation();
 		GetMesh()->SetRelativeLocation(FVector(0,0, -CrouchingHeight / 2), false);
+		SetActorLocation(BodyLocation);
 	}
 }
 
