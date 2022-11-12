@@ -104,6 +104,41 @@ protected:
 };
 
 UCLASS()
+class WGS_API APatrolingEnemy : public AEnemy
+{
+	GENERATED_BODY()
+
+public:
+	APatrolingEnemy();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Values")
+	class USplineComponent* PatrolRoad;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Values")
+	float DelayPerStop;
+
+	FVector GetWorldLocationByIndex(int Index) const;
+	int GetLastIndex() const;
+
+protected:
+
+	UPROPERTY(BlueprintReadOnly)
+	float InPositionDelay;
+	UPROPERTY(BlueprintReadOnly)
+	int PatrolIndex;
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsWalking;
+
+	virtual void BeginPlay() override;
+	void Tick(float DeltaTime) override;
+	bool HasReachedDestination();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void MoveToLocation(FVector Location);
+	UFUNCTION(BlueprintImplementableEvent)
+	void StopMoving();
+};
+
+UCLASS()
 class WGS_API UAlertIndicator : public UUserWidget
 {
 	GENERATED_BODY()

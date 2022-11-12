@@ -4,7 +4,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SplineComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "AIController.h"
 
 AEnemy::AEnemy()
 {
@@ -160,3 +162,70 @@ void ARotatingEnemy::Tick(float DeltaTime)
 		}
 	}
 }
+
+APatrolingEnemy::APatrolingEnemy()
+{
+	PatrolRoad = CreateDefaultSubobject<USplineComponent>(TEXT("Patrol Road"));
+	PatrolRoad->SetupAttachment(RootComponent);
+}
+
+FVector APatrolingEnemy::GetWorldLocationByIndex(int Index) const
+{
+	if (PatrolRoad && Index < GetLastIndex())
+	{
+		return PatrolRoad->GetLocationAtSplinePoint(Index, ESplineCoordinateSpace::World);
+	}
+	return GetActorLocation();
+}
+
+int APatrolingEnemy::GetLastIndex() const
+{
+	if (PatrolRoad)
+	{
+		return PatrolRoad->GetNumberOfSplinePoints();
+	}
+
+	return 0;
+}
+
+void APatrolingEnemy::BeginPlay()
+{
+	Super::BeginPlay();
+	MoveToLocation(GetWorldLocationByIndex(PatrolIndex));
+}
+
+void APatrolingEnemy::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (CurrentState == EEnemyState::Idle)
+	{
+		if (HasReachedDestination())
+		{
+			InPositionDelay += DeltaTime;
+			if (InPositionDelay >= DelayPerStop)
+			{
+				InPositionDelay = 0;
+				PatrolIndex++;
+				if (PatrolIndex >= GetLastIndex())
+				{
+					PatrolIndex = 0;
+				}
+				MoveToLocation(GetWorldLocationByIndex(PatrolIndex));
+			}
+		}
+	}
+	else
+	{
+		if (bIsWalking)
+		{
+			StopMoving();
+		}
+	}
+}
+
+bool APatrolingEnemy::HasReachedDestination()
+{
+	return FVector::Dist(GetActorLocation(), GetWorldLocationByIndex(PatrolIndex)) <= 100;
+}
+
