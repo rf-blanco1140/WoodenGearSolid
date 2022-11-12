@@ -111,6 +111,36 @@ void AEnemy::EnteredCatchingRange(UPrimitiveComponent* OverlappedComponent, AAct
 	}
 }
 
+void AIntermitentEnemy::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (CurrentState == EEnemyState::Idle)
+	{
+		if (CurrentActiveDelay < ActiveTime)
+		{
+			CurrentActiveDelay += DeltaTime;
+			if (CurrentActiveDelay >= ActiveTime)
+			{
+				CurrentInactiveDelay = 0;
+				FOVScale = FieldOfView->GetComponentScale();
+				FieldOfView->SetWorldScale3D(FVector(0));
+				FieldOfView->SetCollisionResponseToAllChannels(ECR_Ignore);
+			}
+		}
+		else if (CurrentInactiveDelay < InactiveTime)
+		{
+			CurrentInactiveDelay += DeltaTime;
+			if (CurrentInactiveDelay >= InactiveTime)
+			{
+				CurrentActiveDelay = 0;
+				FieldOfView->SetWorldScale3D(FOVScale);
+				FieldOfView->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+			}
+		}
+	}
+}
+
 void ARotatingEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

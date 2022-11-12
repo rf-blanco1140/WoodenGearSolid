@@ -58,6 +58,30 @@ protected:
 };
 
 UCLASS()
+class WGS_API AIntermitentEnemy : public AEnemy
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Values")
+	float ActiveTime;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Values")
+	float InactiveTime;
+
+protected:
+
+	UPROPERTY(BlueprintReadOnly)
+	float CurrentActiveDelay;
+	UPROPERTY(BlueprintReadOnly)
+	float CurrentInactiveDelay;
+
+	FVector FOVScale;
+
+	void Tick(float DeltaTime) override;
+}; 
+
+UCLASS()
 class WGS_API ARotatingEnemy : public AEnemy
 {
 	GENERATED_BODY()
