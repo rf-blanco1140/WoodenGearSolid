@@ -23,7 +23,7 @@ private:
 	UPROPERTY()
 	UUserWidget* GameOverHUD;
 	UPROPERTY()
-	TArray<FGameplayTag> CollectedKeys;
+	TMap<FGameplayTag, int> CollectedKeys;
 	UPROPERTY()
 	AContextInteractable* CurrentInteractable;
 	UPROPERTY()
@@ -46,8 +46,9 @@ public:
 	AContextInteractable* GetObjectSelected() const;
 	void ChangeObjectSelected(AContextInteractable*);
 	void InteractWithSelected();
-	void CollectItem(FGameplayTag);
-	bool HasCollectedItem(FGameplayTag);
+	void CollectItem(FGameplayTag&);
+	bool HasCollectedItem(FGameplayTag&, int Quantity = 1);
+	void ConsumeItem(FGameplayTag&, int Quantity = 1);
 
 	void ToggleHiddingSpot(AHidingSpot*);
 	EStealthState GetStealthState() const;
@@ -75,11 +76,13 @@ class WGS_API UInventoryScreen : public UUserWidget
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
-	TMap<FGameplayTag, UTexture2D*> ItemIcons;
+	class UDataTable* TagData;
 	UPROPERTY(BlueprintReadWrite, Category = "Inventory")
 	TArray<UInventoryItem*> Items;
 
-	void UpdateInventory(TArray<FGameplayTag>&);
+	void UpdateInventory(TMap<FGameplayTag, int>&);
+	UTexture2D* GetIcon(FGameplayTag& KeyTag);
+	FName GetDisplayName(FGameplayTag& KeyTag);
 };
 
 UCLASS()
@@ -88,6 +91,9 @@ class WGS_API UInventoryItem : public UUserWidget
 	GENERATED_BODY()
 
 public:
+
 	UFUNCTION(BlueprintImplementableEvent)
-	void UpdateItem(UTexture2D* Icon, FGameplayTag KeyTag);
+	void UpdateItem(UTexture2D* Icon, FName KeyTag, int Quantity);
+	UFUNCTION(BlueprintImplementableEvent)
+	void Toggle(bool visible);
 };

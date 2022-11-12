@@ -59,16 +59,38 @@ void AKidController::InteractWithSelected()
 	}
 }
 
-void AKidController::CollectItem(FGameplayTag Item)
+void AKidController::CollectItem(FGameplayTag& Item)
 {
-	CollectedKeys.Add(Item);
+	if (!CollectedKeys.Contains(Item))
+	{
+		CollectedKeys.Add(Item, 1);
+	}
+	else
+	{
+		CollectedKeys[Item]++;
+	}
+
 	InventoryHUD->UpdateInventory(CollectedKeys);
 }
 
-bool AKidController::HasCollectedItem(FGameplayTag Item)
+bool AKidController::HasCollectedItem(FGameplayTag& Item, int Quantity)
 {
-	return CollectedKeys.Contains(Item);
+	return CollectedKeys.Contains(Item) && CollectedKeys[Item] >= Quantity;
 }
+
+void AKidController::ConsumeItem(FGameplayTag& Item, int Quantity)
+{
+	if (CollectedKeys.Contains(Item))
+	{
+		CollectedKeys[Item] -= Quantity;
+		if (CollectedKeys[Item] <= 0)
+		{
+			CollectedKeys.Remove(Item);
+		}
+		InventoryHUD->UpdateInventory(CollectedKeys);
+	}
+}
+
 
 void AKidController::ToggleHiddingSpot(AHidingSpot* NewHidingSpot)
 {
@@ -118,16 +140,45 @@ void UInteractionPrompt::SetDescriptionText(FString newText, bool bCanInteract)
 	PromptChanged(newText, bCanInteract);
 }
 
-void UInventoryScreen::UpdateInventory(TArray<FGameplayTag>& OwnedKeys)
+void UInventoryScreen::UpdateInventory(TMap<FGameplayTag, int>& OwnedKeys)
 {
 	int Index = 0;
-	for (FGameplayTag ItemKey : OwnedKeys)
+	for (auto ItemKey : OwnedKeys)
 	{
-		if (Index >= Items.Num() || !ItemIcons.Contains(ItemKey))
-			return;
-
-		Items[Index]->UpdateItem(ItemIcons[ItemKey], ItemKey);
+		if (Index >= Items.Num())
+		{
+			Items[Index]->Toggle(false);
+		}
+		else
+		{
+			Items[Index]->Toggle(true);
+			Items[Index]->UpdateItem(GetIcon(ItemKey.Key), GetDisplayName(ItemKey.Key), ItemKey.Value);
+		}
 		Index++;
 	}
+
+	while (Index < Items.Num())
+	{
+		Items[Index]->Toggle(false);
+		Index++;
+	}
+}
+
+UTexture2D* UInventoryScreen::GetIcon(FGameplayTag& KeyTag)
+{
+	if (FInteractableType* Item = TagData->FindRow<FInteractableType>(FName(KeyTag.ToString()), ""))
+	{
+		return Item->Icon;
+	}
+	return nullptr;
+}
+
+FName UInventoryScreen::GetDisplayName(FGameplayTag& KeyTag)
+{
+	if (FInteractableType* Item = TagData->FindRow<FInteractableType>(FName(KeyTag.ToString()), ""))
+	{
+		return Item->ScreenName;
+	}
+	return FName("Undefined");
 }
 

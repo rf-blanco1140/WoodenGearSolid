@@ -13,11 +13,15 @@ USTRUCT(BlueprintType)
 struct WGS_API FInteractableType : public FTableRowBase
 {
 	GENERATED_BODY()
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FGameplayTag InteractionTag;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FName ScreenName;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UTexture2D* Icon; 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	bool ConsumedOnUse;
 };
 
 UCLASS()
@@ -30,19 +34,19 @@ public:
 	AContextInteractable();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UBoxComponent* ActivationRange;
+		class UBoxComponent* ActivationRange;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UDataTable* TagData;
+		class UDataTable* TagData;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
+
 	UPROPERTY()
-	class AKidCharacter* kid;
+		class AKidCharacter* kid;
 	UPROPERTY()
-	class AKidController* player;
+		class AKidController* player;
 
 public:
 	virtual bool CanOverlap();
@@ -55,17 +59,17 @@ public:
 	virtual FString GetPromptText();
 	bool IsFinished();
 	UFUNCTION(BlueprintImplementableEvent)
-	void UpdatePlayerInRange(bool InRange);
+		void UpdatePlayerInRange(bool InRange);
 	UFUNCTION(BlueprintImplementableEvent)
-	void UpdateFinishedVisuals();
+		void UpdateFinishedVisuals();
 
 	UPROPERTY(BlueprintAssignable)
-	FInteractionFinished InteractionFinished;
+		FInteractionFinished InteractionFinished;
 
 	UFUNCTION()
-	virtual void OnOverlapRangeBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+		virtual void OnOverlapRangeBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
-	void OnOverlapRangeEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+		void OnOverlapRangeEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 };
 
 UCLASS()
@@ -75,10 +79,10 @@ class WGS_API ACollectableInteractable : public AContextInteractable
 
 public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Interaction")
-	FGameplayTag InteractionTag;
+		FGameplayTag InteractionTag;
 	UPROPERTY(BlueprintReadOnly)
-	bool finished;
-	
+		bool finished;
+
 	bool CanOverlap() override;
 	bool CanInteract() override;
 	bool InteractWith() override;
@@ -92,14 +96,31 @@ class WGS_API ALockedInteractable : public AContextInteractable
 
 public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Interaction")
-	FGameplayTag InteractionTag;
+		FGameplayTag InteractionTag;
 	UPROPERTY(BlueprintReadOnly)
-	bool finished;
+		bool finished;
 
 	bool CanOverlap() override;
 	bool CanInteract() override;
 	bool InteractWith() override;
 	FString GetPromptText() override;
+	virtual void DeductPlayerInventory();
+};
+
+UCLASS()
+class WGS_API AMultipleKeyLockedInteractable : public ALockedInteractable
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Interaction")
+	FName PromptText;
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Interaction")
+	TMap<FGameplayTag, int> InteractionTags;
+
+	bool CanInteract() override;
+	FString GetPromptText() override;
+	void DeductPlayerInventory() override;
 };
 
 UCLASS()
@@ -111,7 +132,7 @@ public:
 	AClimbingSurface();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	class UArrowComponent* SurfaceTop;
+		class UArrowComponent* SurfaceTop;
 
 	bool CanInteract() override;
 	bool InteractWith() override;

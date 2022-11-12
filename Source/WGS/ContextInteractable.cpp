@@ -166,6 +166,7 @@ bool ALockedInteractable::InteractWith()
 	}
 
 	finished = true;
+	DeductPlayerInventory();
 	FinishInteraction();
 	return true;
 }
@@ -177,6 +178,59 @@ FString ALockedInteractable::GetPromptText()
 		return FString("Use " + Item->ScreenName.ToString() + " to unlock");
 	}
 	return FString("Use " + InteractionTag.ToString() + " to unlock");
+}
+
+void ALockedInteractable::DeductPlayerInventory()
+{
+	if (FInteractableType* Item = TagData->FindRow<FInteractableType>(FName(InteractionTag.ToString()), ""))
+	{
+		if (Item->ConsumedOnUse)
+		{
+			player->ConsumeItem(InteractionTag);
+		}
+	}
+}
+
+bool AMultipleKeyLockedInteractable::CanInteract()
+{
+	if (!finished)
+	{
+		if (player != nullptr)
+		{
+			for (auto Requirement : InteractionTags)
+			{
+				if (!player->HasCollectedItem(Requirement.Key, Requirement.Value))
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
+FString AMultipleKeyLockedInteractable::GetPromptText()
+{
+	if (FInteractableType* Item = TagData->FindRow<FInteractableType>(FName(InteractionTag.ToString()), ""))
+	{
+		return FString("Use " + Item->ScreenName.ToString() + " to unlock");
+	}
+	return FString("Use " + InteractionTag.ToString() + " to unlock");
+}
+
+void AMultipleKeyLockedInteractable::DeductPlayerInventory()
+{
+	for (auto Requirement : InteractionTags)
+	{
+		if (FInteractableType* Item = TagData->FindRow<FInteractableType>(FName(Requirement.Key.ToString()), ""))
+		{
+			if (Item->ConsumedOnUse)
+			{
+				player->ConsumeItem(Requirement.Key, Requirement.Value);
+			}
+		}
+	}
 }
 
 AClimbingSurface::AClimbingSurface()
