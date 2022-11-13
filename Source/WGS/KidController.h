@@ -23,6 +23,8 @@ private:
 	UPROPERTY()
 	UUserWidget* GameOverHUD;
 	UPROPERTY()
+	UKidStateUI* StateHUD;
+	UPROPERTY()
 	TMap<FGameplayTag, int> CollectedKeys;
 	UPROPERTY()
 	AContextInteractable* CurrentInteractable;
@@ -42,6 +44,8 @@ public:
 	TSubclassOf<UInventoryScreen> InventoryHUD_BP;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widgets)
 	TSubclassOf<UUserWidget> GameOverHUD_BP;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widgets)
+	TSubclassOf<UKidStateUI> StateHUD_BP;
 	bool CanMove();
 	AContextInteractable* GetObjectSelected() const;
 	void ChangeObjectSelected(AContextInteractable*);
@@ -54,6 +58,7 @@ public:
 	EStealthState GetStealthState() const;
 	TArray<AHidingSpot*> GetCurrentHidingSpots() const;
 	void GameOver();
+	void UpdateAlertState(float Percentage);
 };
 
 UCLASS()
@@ -65,8 +70,18 @@ public:
 	void SetDescriptionText(FString newText, bool bCanInteract = false);
 	UFUNCTION(BlueprintImplementableEvent)
 	void PromptChanged(const FString& newText, bool bCanInteract);
+};
+
+UCLASS()
+class WGS_API UKidStateUI : public UUserWidget
+{
+	GENERATED_BODY()
+
+public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void StealthStateChanged(const EStealthState StealthState);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void UpdateAlertIndicator(const float Percentage);
 };
 
 UCLASS()

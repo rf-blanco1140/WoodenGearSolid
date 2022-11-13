@@ -42,8 +42,6 @@ public:
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void ToggleStateVisuals();
-	UFUNCTION(BlueprintImplementableEvent)
-	void UpdateAlertState(float Percentage);
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
@@ -136,14 +134,4 @@ protected:
 	void MoveToLocation(FVector Location);
 	UFUNCTION(BlueprintImplementableEvent)
 	void StopMoving();
-};
-
-UCLASS()
-class WGS_API UAlertIndicator : public UUserWidget
-{
-	GENERATED_BODY()
-
-public:
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void UpdateAlertIndicator(const float Percentage);
 };

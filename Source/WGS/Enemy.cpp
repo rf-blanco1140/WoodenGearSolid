@@ -37,17 +37,27 @@ void AEnemy::BeginPlay()
 	FieldOfView->OnComponentEndOverlap.AddDynamic(this, &AEnemy::ExitedFieldOfView);
 	ActionableRange->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::EnteredCatchingRange);
 	PersonalSpace->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::EnteredCatchingRange);
-	UpdateAlertState(0);
 }
 
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (KidController)
+	{
+		if (!KidController->CanMove())
+		{
+			return;
+		}
+	}
+	
 	if (CurrentState == EEnemyState::ActiveAlert)
 	{
 		CurrentAlertDelay += DeltaTime;
-		UpdateAlertState(CurrentAlertDelay / AlertTime);
+		if (KidController)
+		{
+			KidController->UpdateAlertState(CurrentAlertDelay / AlertTime);
+		}
 		if (CurrentAlertDelay >= AlertTime)
 		{
 			KidController->GameOver();
@@ -56,7 +66,10 @@ void AEnemy::Tick(float DeltaTime)
 	else if (CurrentState == EEnemyState::PassiveAlert)
 	{
 		CurrentAlertDelay -= DeltaTime;
-		UpdateAlertState(CurrentAlertDelay / AlertTime);
+		if (KidController)
+		{
+			KidController->UpdateAlertState(CurrentAlertDelay / AlertTime);
+		}
 		if (CurrentAlertDelay <= 0)
 		{
 			CurrentState = EEnemyState::Idle;
@@ -97,7 +110,6 @@ void AEnemy::ExitedFieldOfView(UPrimitiveComponent* OverlappedComponent, AActor*
 		{
 			CurrentState = EEnemyState::PassiveAlert;
 			ToggleStateVisuals();
-			KidController = nullptr;
 		}
 	}
 }
@@ -200,9 +212,16 @@ void APatrolingEnemy::Tick(float DeltaTime)
 
 	if (CurrentState == EEnemyState::Idle)
 	{
+		if (!bIsWalking)
+		{
+			bIsWalking = true;
+			MoveToLocation(GetWorldLocationByIndex(PatrolIndex));
+		}
+		
 		if (HasReachedDestination())
 		{
 			InPositionDelay += DeltaTime;
+			bIsWalking = false;
 			if (InPositionDelay >= DelayPerStop)
 			{
 				InPositionDelay = 0;
@@ -214,12 +233,17 @@ void APatrolingEnemy::Tick(float DeltaTime)
 				MoveToLocation(GetWorldLocationByIndex(PatrolIndex));
 			}
 		}
+		else
+		{
+			bIsWalking = true;
+		}
 	}
 	else
 	{
 		if (bIsWalking)
 		{
 			StopMoving();
+			bIsWalking = false;
 		}
 	}
 }
