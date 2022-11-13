@@ -10,7 +10,6 @@ void AKidController::BeginPlay()
 		PromptHUD->AddToViewport();
 		PromptHUD->SetVisibility(ESlateVisibility::Visible);
 		PromptHUD->SetDescriptionText(FString(""));
-		PromptHUD->StealthStateChanged(GetStealthState());
 	}
 	if (GameOverHUD_BP)
 	{
@@ -24,6 +23,20 @@ void AKidController::BeginPlay()
 		InventoryHUD->AddToViewport();
 		InventoryHUD->SetVisibility(ESlateVisibility::Visible);
 	}
+	if (StateHUD_BP)
+	{
+		StateHUD = Cast<UKidStateUI>(CreateWidget<UUserWidget>(this, StateHUD_BP));
+		StateHUD->AddToViewport();
+		StateHUD->SetVisibility(ESlateVisibility::Visible);
+		UpdateAlertState(0);
+		StateHUD->StealthStateChanged(GetStealthState());
+	}
+
+}
+
+void AKidController::UpdateAlertState(float Percentage)
+{
+	StateHUD->UpdateAlertIndicator(Percentage);
 }
 
 bool AKidController::CanMove()
@@ -103,7 +116,7 @@ void AKidController::ToggleHiddingSpot(AHidingSpot* NewHidingSpot)
 		HidingSpots.Add(NewHidingSpot);
 	}
 	NewHidingSpot->UpdateHidingVisuals();
-	PromptHUD->StealthStateChanged(GetStealthState());
+	StateHUD->StealthStateChanged(GetStealthState());
 }
 
 EStealthState AKidController::GetStealthState() const
