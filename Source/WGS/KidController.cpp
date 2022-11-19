@@ -145,7 +145,10 @@ TArray<AHidingSpot*> AKidController::GetCurrentHidingSpots() const
 void AKidController::GameOver()
 {
 	bIsPlaying = false;
-	GameOverHUD->SetVisibility(ESlateVisibility::Visible);
+	if (GameOverHUD)
+	{
+		GameOverHUD->SetVisibility(ESlateVisibility::Visible);
+	}
 }
 
 void UInteractionPrompt::SetDescriptionText(FString newText, bool bCanInteract)

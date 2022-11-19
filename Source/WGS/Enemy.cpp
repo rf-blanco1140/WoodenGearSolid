@@ -37,6 +37,7 @@ void AEnemy::BeginPlay()
 	FieldOfView->OnComponentEndOverlap.AddDynamic(this, &AEnemy::ExitedFieldOfView);
 	ActionableRange->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::EnteredCatchingRange);
 	PersonalSpace->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::EnteredCatchingRange);
+	Kid = Cast<AKidCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 }
 
 void AEnemy::Tick(float DeltaTime)
@@ -50,6 +51,8 @@ void AEnemy::Tick(float DeltaTime)
 			return;
 		}
 	}
+
+	CheckFOVLength();
 	
 	if (CurrentState == EEnemyState::ActiveAlert)
 	{
@@ -76,6 +79,37 @@ void AEnemy::Tick(float DeltaTime)
 			ToggleStateVisuals();
 		}
 	}
+}
+
+void AEnemy::CheckFOVLength()
+{
+	const FVector Direction = GetActorRotation().Vector();
+	const FVector StartTrace = GetPawnViewLocation() + Direction * FOVDistanceFromBody;
+	const FVector EndTrace = StartTrace + GetActorRotation().Vector() * (MaxFOVLength - FOVDistanceFromBody);
+
+	FCollisionQueryParams TraceParams(FName(TEXT("FOVLength")), true, this);
+	//TraceParams.bTraceAsyncScene = true;
+	//TraceParams.bReturnPhysicalMaterial = true;
+	TraceParams.AddIgnoredActor(Kid);
+	TraceParams.AddIgnoredActor(this);
+
+	FHitResult Hit;
+	GetWorld()->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, ECC_WorldStatic, TraceParams);
+
+	FVector FOVScale = FieldOfView->GetComponentScale();
+	FVector FOVLoc = FieldOfView->GetRelativeLocation();
+	if (Hit.Distance > 0 && Hit.Distance < MaxFOVLength)
+	{
+		FOVScale.Y = Hit.Distance * FOVScaleFactor;
+		FOVLoc = Direction * (Hit.Distance * FOVDistanceFactor - FOVDistanceFromBody);
+	}
+	else
+	{
+		FOVScale.Y = MaxFOVLength * FOVScaleFactor;
+		FOVLoc = Direction * (MaxFOVLength * FOVDistanceFactor - FOVDistanceFromBody);
+	}
+	FieldOfView->SetWorldScale3D(FOVScale);
+	FieldOfView->SetRelativeLocation(FOVLoc);
 }
 
 void AEnemy::EnteredFieldOfView(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
