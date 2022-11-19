@@ -35,9 +35,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Values")
 	float MaxFOVLength = 1000;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Values")
-	float FOVDistanceFromBody = 50;
-	float FOVScaleFactor = 0.01;
-	float FOVDistanceFactor = -0.1;
+	float FOVScaleFactor = 0.0075;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Values")
+	float FOVDistanceFactor = -0.125;
 
 	UFUNCTION()
 	void EnteredFieldOfView(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

@@ -84,12 +84,10 @@ void AEnemy::Tick(float DeltaTime)
 void AEnemy::CheckFOVLength()
 {
 	const FVector Direction = GetActorRotation().Vector();
-	const FVector StartTrace = GetPawnViewLocation() + Direction * FOVDistanceFromBody;
-	const FVector EndTrace = StartTrace + GetActorRotation().Vector() * (MaxFOVLength - FOVDistanceFromBody);
+	const FVector StartTrace = GetPawnViewLocation() + Direction;
+	const FVector EndTrace = GetPawnViewLocation() + Direction * MaxFOVLength;
 
 	FCollisionQueryParams TraceParams(FName(TEXT("FOVLength")), true, this);
-	//TraceParams.bTraceAsyncScene = true;
-	//TraceParams.bReturnPhysicalMaterial = true;
 	TraceParams.AddIgnoredActor(Kid);
 	TraceParams.AddIgnoredActor(this);
 
@@ -98,15 +96,15 @@ void AEnemy::CheckFOVLength()
 
 	FVector FOVScale = FieldOfView->GetComponentScale();
 	FVector FOVLoc = FieldOfView->GetRelativeLocation();
-	if (Hit.Distance > 0 && Hit.Distance < MaxFOVLength)
+	if (Hit.Distance > 0)
 	{
 		FOVScale.Y = Hit.Distance * FOVScaleFactor;
-		FOVLoc = Direction * (Hit.Distance * FOVDistanceFactor - FOVDistanceFromBody);
+		FOVLoc = Direction * Hit.Distance * FOVDistanceFactor;
 	}
 	else
 	{
 		FOVScale.Y = MaxFOVLength * FOVScaleFactor;
-		FOVLoc = Direction * (MaxFOVLength * FOVDistanceFactor - FOVDistanceFromBody);
+		FOVLoc = Direction * MaxFOVLength * FOVDistanceFactor;
 	}
 	FieldOfView->SetWorldScale3D(FOVScale);
 	FieldOfView->SetRelativeLocation(FOVLoc);
