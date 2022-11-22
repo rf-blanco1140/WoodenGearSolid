@@ -34,9 +34,7 @@ public:
 	float AlertTime;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Values")
 	float MaxFOVLength = 1000;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Values")
 	float FOVScaleFactor = 0.0075;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Values")
 	float FOVDistanceFactor = -0.125;
 
 	UFUNCTION()
@@ -121,7 +119,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Values")
 	class USplineComponent* PatrolRoad;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Values")
-	float DelayPerStop;
+	TArray<float> DelayPerStop;
 
 	FVector GetWorldLocationByIndex(int Index) const;
 	int GetLastIndex() const;
@@ -134,10 +132,12 @@ protected:
 	int PatrolIndex;
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsWalking;
+	UPROPERTY(BlueprintReadWrite)
+	bool bReachedDestination;
 
 	virtual void BeginPlay() override;
 	void Tick(float DeltaTime) override;
-	bool HasReachedDestination();
+	float GetCurrentDelay();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void MoveToLocation(FVector Location);

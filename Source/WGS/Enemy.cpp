@@ -250,11 +250,11 @@ void APatrolingEnemy::Tick(float DeltaTime)
 			MoveToLocation(GetWorldLocationByIndex(PatrolIndex));
 		}
 		
-		if (HasReachedDestination())
+		if (bReachedDestination)
 		{
 			InPositionDelay += DeltaTime;
 			bIsWalking = false;
-			if (InPositionDelay >= DelayPerStop)
+			if (InPositionDelay >= GetCurrentDelay())
 			{
 				InPositionDelay = 0;
 				PatrolIndex++;
@@ -280,8 +280,12 @@ void APatrolingEnemy::Tick(float DeltaTime)
 	}
 }
 
-bool APatrolingEnemy::HasReachedDestination()
+float APatrolingEnemy::GetCurrentDelay()
 {
-	return FVector::Dist(GetActorLocation(), GetWorldLocationByIndex(PatrolIndex)) <= 100;
+	if (PatrolIndex < DelayPerStop.Num())
+	{
+		return DelayPerStop[PatrolIndex];
+	}
+	return 0;
 }
 
