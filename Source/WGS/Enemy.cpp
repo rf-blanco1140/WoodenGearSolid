@@ -30,6 +30,7 @@ void AEnemy::BeginPlay()
 	FieldOfView->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::EnteredFieldOfView);
 	FieldOfView->OnComponentEndOverlap.AddDynamic(this, &AEnemy::ExitedFieldOfView);
 	Kid = Cast<AKidCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	UpdateIndicatorState(0);
 }
 
 void AEnemy::Tick(float DeltaTime)
@@ -161,9 +162,11 @@ void AIntermitentEnemy::Tick(float DeltaTime)
 		else if (CurrentInactiveDelay < InactiveTime)
 		{
 			CurrentInactiveDelay += DeltaTime;
+			UpdateIndicatorState(CurrentInactiveDelay / InactiveTime);
 			if (CurrentInactiveDelay >= InactiveTime)
 			{
 				CurrentActiveDelay = 0;
+				UpdateIndicatorState(0);
 				FOVShadow->SetVisibility(true);
 				FieldOfView->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 			}

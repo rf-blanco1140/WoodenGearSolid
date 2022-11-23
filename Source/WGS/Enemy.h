@@ -42,6 +42,8 @@ public:
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void ToggleStateVisuals();
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateIndicatorState(float Percentage);
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
@@ -81,6 +83,16 @@ protected:
 
 	void Tick(float DeltaTime) override;
 }; 
+
+UCLASS()
+class WGS_API UEnemyIndicator : public UUserWidget
+{
+	GENERATED_BODY()
+
+public:
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void UpdateIndicator(const float Percentage);
+};
 
 UCLASS()
 class WGS_API ARotatingEnemy : public AEnemy
