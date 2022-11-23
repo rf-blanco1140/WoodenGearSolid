@@ -5,6 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SplineComponent.h"
+#include "Components/DecalComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AIController.h"
 
@@ -15,15 +16,8 @@ AEnemy::AEnemy()
 	FieldOfView->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	FieldOfView->SetupAttachment(RootComponent);
 
-	ActionableRange = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Actionable Range"));
-	ActionableRange->SetCollisionResponseToAllChannels(ECR_Ignore);
-	ActionableRange->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-	ActionableRange->SetupAttachment(RootComponent);
-
-	PersonalSpace = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Personal Space"));
-	PersonalSpace->SetCollisionResponseToAllChannels(ECR_Ignore);
-	PersonalSpace->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-	PersonalSpace->SetupAttachment(RootComponent);
+	FOVShadow = CreateDefaultSubobject<UDecalComponent>(TEXT("Shadow"));
+	FOVShadow->SetupAttachment(RootComponent);
 
 	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
 	GetCharacterMovement()->GravityScale = 0;
@@ -35,8 +29,6 @@ void AEnemy::BeginPlay()
 	CurrentState = EEnemyState::Idle;
 	FieldOfView->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::EnteredFieldOfView);
 	FieldOfView->OnComponentEndOverlap.AddDynamic(this, &AEnemy::ExitedFieldOfView);
-	ActionableRange->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::EnteredCatchingRange);
-	PersonalSpace->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::EnteredCatchingRange);
 	Kid = Cast<AKidCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 }
 
@@ -108,6 +100,9 @@ void AEnemy::CheckFOVLength()
 	}
 	FieldOfView->SetWorldScale3D(FOVScale);
 	FieldOfView->SetWorldLocation(GetActorLocation() + FOVLoc);
+
+	FOVShadow->SetWorldScale3D(FieldOfView->GetComponentScale());
+	FOVShadow->SetWorldLocation(FieldOfView->GetComponentLocation() - (Direction * MaxFOVLength / 2));
 }
 
 void AEnemy::EnteredFieldOfView(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -146,17 +141,6 @@ void AEnemy::ExitedFieldOfView(UPrimitiveComponent* OverlappedComponent, AActor*
 	}
 }
 
-void AEnemy::EnteredCatchingRange(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (OtherActor)
-	{
-		if (AKidCharacter* newCollision = Cast<AKidCharacter>(OtherActor))
-		{
-			newCollision->GetKidController()->GameOver();
-		}
-	}
-}
-
 void AIntermitentEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -170,7 +154,7 @@ void AIntermitentEnemy::Tick(float DeltaTime)
 			{
 				CurrentInactiveDelay = 0;
 				FOVScale = FieldOfView->GetComponentScale();
-				FieldOfView->SetWorldScale3D(FVector(0));
+				FOVShadow->SetVisibility(false);
 				FieldOfView->SetCollisionResponseToAllChannels(ECR_Ignore);
 			}
 		}
@@ -180,7 +164,7 @@ void AIntermitentEnemy::Tick(float DeltaTime)
 			if (CurrentInactiveDelay >= InactiveTime)
 			{
 				CurrentActiveDelay = 0;
-				FieldOfView->SetWorldScale3D(FOVScale);
+				FOVShadow->SetVisibility(true);
 				FieldOfView->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 			}
 		}
@@ -244,16 +228,15 @@ void APatrolingEnemy::Tick(float DeltaTime)
 
 	if (CurrentState == EEnemyState::Idle)
 	{
-		if (!bIsWalking)
-		{
-			bIsWalking = true;
-			MoveToLocation(GetWorldLocationByIndex(PatrolIndex));
-		}
-		
 		if (bReachedDestination)
 		{
+			if (bIsWalking)
+			{
+				bIsWalking = false;
+				StopMoving();
+			}
+
 			InPositionDelay += DeltaTime;
-			bIsWalking = false;
 			if (InPositionDelay >= GetCurrentDelay())
 			{
 				InPositionDelay = 0;
@@ -265,9 +248,10 @@ void APatrolingEnemy::Tick(float DeltaTime)
 				MoveToLocation(GetWorldLocationByIndex(PatrolIndex));
 			}
 		}
-		else
+		else if (!bIsWalking)
 		{
 			bIsWalking = true;
+			MoveToLocation(GetWorldLocationByIndex(PatrolIndex));
 		}
 	}
 	else
