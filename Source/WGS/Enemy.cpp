@@ -95,19 +95,19 @@ void AEnemy::CheckFOVLength()
 	GetWorld()->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, ECC_WorldStatic, TraceParams);
 
 	FVector FOVScale = FieldOfView->GetComponentScale();
-	FVector FOVLoc = FieldOfView->GetRelativeLocation();
+	FVector FOVLoc;
 	if (Hit.Distance > 0)
 	{
 		FOVScale.Y = Hit.Distance * FOVScaleFactor;
-		FOVLoc = Direction * Hit.Distance * FOVDistanceFactor;
+		FOVLoc = Direction * Hit.Distance;
 	}
 	else
 	{
 		FOVScale.Y = MaxFOVLength * FOVScaleFactor;
-		FOVLoc = Direction * MaxFOVLength * FOVDistanceFactor;
+		FOVLoc = Direction * MaxFOVLength;
 	}
 	FieldOfView->SetWorldScale3D(FOVScale);
-	FieldOfView->SetRelativeLocation(FOVLoc);
+	FieldOfView->SetWorldLocation(GetActorLocation() + FOVLoc);
 }
 
 void AEnemy::EnteredFieldOfView(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
