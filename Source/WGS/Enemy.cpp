@@ -91,12 +91,16 @@ void AEnemy::CheckFOVLength()
 	FVector FOVLoc;
 	if (Hit.Distance > 0)
 	{
+		FOVScale.X = Hit.Distance * FOVScaleFactor;
 		FOVScale.Y = Hit.Distance * FOVScaleFactor;
+		FOVScale.Z = Hit.Distance * FOVScaleFactor;
 		FOVLoc = Direction * Hit.Distance;
 	}
 	else
 	{
+		FOVScale.X = MaxFOVLength * FOVScaleFactor;
 		FOVScale.Y = MaxFOVLength * FOVScaleFactor;
+		FOVScale.Z = MaxFOVLength * FOVScaleFactor;
 		FOVLoc = Direction * MaxFOVLength;
 	}
 	FieldOfView->SetWorldScale3D(FOVScale);
