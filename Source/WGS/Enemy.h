@@ -32,8 +32,8 @@ public:
 	float AlertTime;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Values")
 	float MaxFOVLength = 1000;
-	float FOVScaleFactor = 0.0075;
-	float FOVDistanceFactor = -0.125;
+	float FOVScaleFactor = 0.01;
+	float FOVDistanceFactor = -0.1;
 
 	UFUNCTION()
 	void EnteredFieldOfView(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

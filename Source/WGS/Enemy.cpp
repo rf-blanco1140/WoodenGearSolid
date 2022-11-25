@@ -87,27 +87,22 @@ void AEnemy::CheckFOVLength()
 	FHitResult Hit;
 	GetWorld()->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, ECC_WorldStatic, TraceParams);
 
-	FVector FOVScale = FieldOfView->GetComponentScale();
-	FVector FOVLoc;
 	if (Hit.Distance > 0)
 	{
-		FOVScale.X = Hit.Distance * FOVScaleFactor;
-		FOVScale.Y = Hit.Distance * FOVScaleFactor;
-		FOVScale.Z = Hit.Distance * FOVScaleFactor;
-		FOVLoc = Direction * Hit.Distance;
+		FieldOfView->SetWorldScale3D(FVector::One() * Hit.Distance * FOVScaleFactor);
+		FieldOfView->SetWorldLocation(GetActorLocation() + Direction * Hit.Distance);
+
+		FOVShadow->SetWorldScale3D(FVector::One() * Hit.Distance * FOVScaleFactor);
+		FOVShadow->SetWorldLocation(GetActorLocation() + Direction * Hit.Distance / 2);
 	}
 	else
 	{
-		FOVScale.X = MaxFOVLength * FOVScaleFactor;
-		FOVScale.Y = MaxFOVLength * FOVScaleFactor;
-		FOVScale.Z = MaxFOVLength * FOVScaleFactor;
-		FOVLoc = Direction * MaxFOVLength;
-	}
-	FieldOfView->SetWorldScale3D(FOVScale);
-	FieldOfView->SetWorldLocation(GetActorLocation() + FOVLoc);
+		FieldOfView->SetWorldScale3D(FVector::One() * MaxFOVLength * FOVScaleFactor);
+		FieldOfView->SetWorldLocation(GetActorLocation() + Direction * MaxFOVLength);
 
-	FOVShadow->SetWorldScale3D(FieldOfView->GetComponentScale());
-	FOVShadow->SetWorldLocation(FieldOfView->GetComponentLocation() - (Direction * MaxFOVLength / 2));
+		FOVShadow->SetWorldScale3D(FVector::One() * MaxFOVLength * FOVScaleFactor);
+		FOVShadow->SetWorldLocation(GetActorLocation() + Direction * MaxFOVLength / 2);
+	}
 }
 
 void AEnemy::EnteredFieldOfView(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
