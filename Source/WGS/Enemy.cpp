@@ -83,39 +83,33 @@ void AEnemy::CheckFOVLength()
 	float FrontDistance = CheckInDirection(Front);
 	float LeftDistance = CheckInDirection(Left);
 	float RightDistance = CheckInDirection(Right);
+
+	float FrontScale = MaxFOVLength;
+	float SideScale = MaxFOVLength;
+
+	if (FrontDistance > 0)
+	{
+		FrontScale = FrontDistance;
+	}
+
+	if (LeftDistance > 0 || RightDistance > 0)
+	{
+		SideScale = RightDistance;
+
+		if ((LeftDistance > 0 && LeftDistance < SideScale) || SideScale <= 0)
+		{
+			SideScale = LeftDistance;
+		}
+	}
 	
-	if (FrontDistance > 0 || LeftDistance > 0 || RightDistance > 0)
-	{
-		float Distance = FrontDistance;
+	FVector FOVScale = (FVector::UpVector * FrontScale + FVector::RightVector * SideScale) * FOVScaleFactor + FVector::ForwardVector * FOVHeight;
+	FieldOfView->SetWorldScale3D(FOVScale);
+	FieldOfView->SetWorldLocation(GetActorLocation() + Front * FrontScale);
 
-		if ((LeftDistance > 0 && LeftDistance < Distance) || Distance <= 0)
-		{
-			Distance = LeftDistance;
-		}
-		else if ((RightDistance > 0 && RightDistance < Distance) || Distance <= 0)
-		{
-			Distance = RightDistance;
-		}
-		
-		FVector FOVScale = FVector::One() * Distance * FOVScaleFactor;
-		FOVScale.X = FOVHeight;
-		FieldOfView->SetWorldScale3D(FOVScale);
-		FieldOfView->SetWorldLocation(GetActorLocation() + Front * Distance);
-
-		FOVShadow->SetWorldScale3D(FOVScale);
-		FOVShadow->SetWorldLocation(GetActorLocation() + Front * Distance / 2);
-	}
-	else
-	{
-		FVector FOVScale = FVector::One() * MaxFOVLength * FOVScaleFactor;
-		FOVScale.X = FOVHeight;
-		FieldOfView->SetWorldScale3D(FOVScale);
-		FieldOfView->SetWorldLocation(GetActorLocation() + Front * MaxFOVLength);
-
-		FOVShadow->SetWorldScale3D(FOVScale);
-		FOVShadow->SetWorldLocation(GetActorLocation() + Front * MaxFOVLength / 2);
-	}
+	FOVShadow->SetWorldScale3D(FOVScale);
+	FOVShadow->SetWorldLocation(GetActorLocation() + Front * FrontScale / 2);
 }
+
 float AEnemy::CheckInDirection(FVector Direction)
 {
 	const FVector StartTrace = GetPawnViewLocation() + Direction;
