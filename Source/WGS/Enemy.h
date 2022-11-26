@@ -32,6 +32,8 @@ public:
 	float AlertTime;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Values")
 	float MaxFOVLength = 1000;
+	float FOVHeight = 10;
+	float FOVAngle = 30;
 	float FOVScaleFactor = 0.01;
 	float FOVDistanceFactor = -0.1;
 
@@ -58,6 +60,7 @@ protected:
 	virtual void BeginPlay() override;
 	void Tick(float DeltaTime) override;
 	void CheckFOVLength();
+	float CheckInDirection(FVector);
 };
 
 UCLASS()

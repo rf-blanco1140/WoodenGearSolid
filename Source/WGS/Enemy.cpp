@@ -76,7 +76,48 @@ void AEnemy::Tick(float DeltaTime)
 
 void AEnemy::CheckFOVLength()
 {
-	const FVector Direction = GetActorRotation().Vector();
+	const FVector Front = GetActorRotation().Vector();
+	const FVector Left = GetActorRotation().Vector().RotateAngleAxis(FOVAngle, FVector::UpVector);
+	const FVector Right = GetActorRotation().Vector().RotateAngleAxis(-FOVAngle, FVector::UpVector);
+
+	float FrontDistance = CheckInDirection(Front);
+	float LeftDistance = CheckInDirection(Left);
+	float RightDistance = CheckInDirection(Right);
+	
+	if (FrontDistance > 0 || LeftDistance > 0 || RightDistance > 0)
+	{
+		float Distance = FrontDistance;
+
+		if ((LeftDistance > 0 && LeftDistance < Distance) || Distance <= 0)
+		{
+			Distance = LeftDistance;
+		}
+		else if ((RightDistance > 0 && RightDistance < Distance) || Distance <= 0)
+		{
+			Distance = RightDistance;
+		}
+		
+		FVector FOVScale = FVector::One() * Distance * FOVScaleFactor;
+		FOVScale.X = FOVHeight;
+		FieldOfView->SetWorldScale3D(FOVScale);
+		FieldOfView->SetWorldLocation(GetActorLocation() + Front * Distance);
+
+		FOVShadow->SetWorldScale3D(FOVScale);
+		FOVShadow->SetWorldLocation(GetActorLocation() + Front * Distance / 2);
+	}
+	else
+	{
+		FVector FOVScale = FVector::One() * MaxFOVLength * FOVScaleFactor;
+		FOVScale.X = FOVHeight;
+		FieldOfView->SetWorldScale3D(FOVScale);
+		FieldOfView->SetWorldLocation(GetActorLocation() + Front * MaxFOVLength);
+
+		FOVShadow->SetWorldScale3D(FOVScale);
+		FOVShadow->SetWorldLocation(GetActorLocation() + Front * MaxFOVLength / 2);
+	}
+}
+float AEnemy::CheckInDirection(FVector Direction)
+{
 	const FVector StartTrace = GetPawnViewLocation() + Direction;
 	const FVector EndTrace = GetPawnViewLocation() + Direction * MaxFOVLength;
 
@@ -87,23 +128,10 @@ void AEnemy::CheckFOVLength()
 	FHitResult Hit;
 	GetWorld()->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, ECC_WorldStatic, TraceParams);
 
-	if (Hit.Distance > 0)
-	{
-		FieldOfView->SetWorldScale3D(FVector::One() * Hit.Distance * FOVScaleFactor);
-		FieldOfView->SetWorldLocation(GetActorLocation() + Direction * Hit.Distance);
-
-		FOVShadow->SetWorldScale3D(FVector::One() * Hit.Distance * FOVScaleFactor);
-		FOVShadow->SetWorldLocation(GetActorLocation() + Direction * Hit.Distance / 2);
-	}
-	else
-	{
-		FieldOfView->SetWorldScale3D(FVector::One() * MaxFOVLength * FOVScaleFactor);
-		FieldOfView->SetWorldLocation(GetActorLocation() + Direction * MaxFOVLength);
-
-		FOVShadow->SetWorldScale3D(FVector::One() * MaxFOVLength * FOVScaleFactor);
-		FOVShadow->SetWorldLocation(GetActorLocation() + Direction * MaxFOVLength / 2);
-	}
+	return Hit.Distance;
 }
+
+
 
 void AEnemy::EnteredFieldOfView(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
