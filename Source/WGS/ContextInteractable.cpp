@@ -253,7 +253,7 @@ bool AClimbingSurface::InteractWith()
 		return false;
 	}
 
-	FVector StartLocation = FVector(ActivationRange->GetComponentLocation().X, ActivationRange->GetComponentLocation().Y, GetClimbHeight() * 0.05 + GetClimbStart());
+	FVector StartLocation = FVector(ActivationRange->GetComponentLocation().X, ActivationRange->GetComponentLocation().Y, GetClimbHeight() * 0.01 + GetClimbStart() + kid->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
 	if (kid->GetActorLocation().Z > ActivationRange->GetComponentLocation().Z)
 	{
 		StartLocation.Z = GetClimbHeight() * 0.99 + GetClimbStart() - kid->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
@@ -265,7 +265,12 @@ bool AClimbingSurface::InteractWith()
 
 float AClimbingSurface::GetClimbingPercentage()
 {
-	return (kid->GetActorLocation().Z - GetClimbStart()) / GetClimbHeight();
+	float PreFeetPercentage = (kid->GetActorLocation().Z - GetClimbStart()) / GetClimbHeight();
+	if (PreFeetPercentage < 0.5)
+	{
+		return (kid->GetActorLocation().Z - GetClimbStart() - kid->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()) / GetClimbHeight();
+	}
+	return (kid->GetActorLocation().Z - GetClimbStart() + kid->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()) / GetClimbHeight();
 }
 
 void AClimbingSurface::Tick(float DeltaTime)
@@ -293,12 +298,12 @@ void AClimbingSurface::Tick(float DeltaTime)
 
 float AClimbingSurface::GetClimbHeight()
 {
-	return ActivationRange->GetUnscaledBoxExtent().Z;
+	return ActivationRange->GetUnscaledBoxExtent().Z * 2;
 }
 
 float AClimbingSurface::GetClimbStart()
 {
-	return ActivationRange->GetComponentLocation().Z - GetClimbHeight() / 2;
+	return GetActorLocation().Z - GetClimbHeight() / 2;
 }
 
 FString AClimbingSurface::GetPromptText()
