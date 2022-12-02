@@ -145,3 +145,18 @@ protected:
 	float GetClimbStart();
 };
 
+UCLASS()
+class WGS_API ALevelDoor : public AContextInteractable
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName LevelName;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName LevelPromptName;
+
+	bool InteractWith() override;
+	FString GetPromptText() override;
+};
+

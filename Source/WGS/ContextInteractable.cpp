@@ -305,3 +305,27 @@ FString AClimbingSurface::GetPromptText()
 {
 	return FString("Start climbing");
 }
+
+bool ALevelDoor::InteractWith()
+{
+	if (!CanInteract())
+	{
+		return false;
+	}
+
+	if (UWorld* World = GetWorld())
+	{
+		FString CurrentLevel = World->GetMapName();
+		FName CurrentLevelName(*CurrentLevel);
+		if (CurrentLevelName != LevelName)
+		{
+			UGameplayStatics::OpenLevel(World, LevelName);
+		}
+	}
+	return true;
+}
+
+FString ALevelDoor::GetPromptText()
+{
+	return FString("Press button to go to " + LevelPromptName.ToString());
+}
