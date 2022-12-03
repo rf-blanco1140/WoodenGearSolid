@@ -49,6 +49,8 @@ public:
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	EKidState CurrentState;
+	UPROPERTY(BlueprintReadOnly)
+	float CurrentClimbingSpeed;
 	UPROPERTY()
 	class AKidController* KidController;
 

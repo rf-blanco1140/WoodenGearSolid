@@ -91,6 +91,7 @@ void AKidCharacter::MoveForward(float value)
 {
 	if (!GetKidController()->CanMove())
 		return;
+	CurrentClimbingSpeed = value;
 	if (value == 0)
 		return;
 
