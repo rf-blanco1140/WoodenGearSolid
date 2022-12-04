@@ -178,6 +178,7 @@ void AIntermitentEnemy::Tick(float DeltaTime)
 				FOVScale = FieldOfView->GetComponentScale();
 				FOVShadow->SetVisibility(false);
 				FieldOfView->SetCollisionResponseToAllChannels(ECR_Ignore);
+				bShouldSleep = true;
 			}
 		}
 		else if (CurrentInactiveDelay < InactiveTime)
@@ -190,6 +191,7 @@ void AIntermitentEnemy::Tick(float DeltaTime)
 				UpdateIndicatorState(0);
 				FOVShadow->SetVisibility(true);
 				FieldOfView->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+				bShouldSleep = false;
 			}
 		}
 	}

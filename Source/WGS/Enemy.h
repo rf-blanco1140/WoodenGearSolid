@@ -47,6 +47,12 @@ public:
 	void UpdateIndicatorState(float Percentage);
 
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation Values")
+	bool bShouldSit;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation Values")
+	bool bShouldWalk;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation Values")
+	bool bShouldSleep;
 	UPROPERTY(BlueprintReadOnly)
 	EEnemyState CurrentState;
 	UPROPERTY(BlueprintReadOnly)
