@@ -7,7 +7,6 @@
 #include "Components/SplineComponent.h"
 #include "Components/DecalComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "AIController.h"
 
 AEnemy::AEnemy()
 {
