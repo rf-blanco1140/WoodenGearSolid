@@ -324,6 +324,7 @@ bool ALevelDoor::InteractWith()
 		FName CurrentLevelName(*CurrentLevel);
 		if (CurrentLevelName != LevelName)
 		{
+			kid->GetKidController()->CurrentCheckpoint = nullptr;
 			UGameplayStatics::OpenLevel(World, LevelName);
 		}
 	}
@@ -333,4 +334,24 @@ bool ALevelDoor::InteractWith()
 FString ALevelDoor::GetPromptText()
 {
 	return FString("Press button to go to " + LevelPromptName.ToString());
+}
+
+bool ALevelCheckpoint::InteractWith()
+{
+	if (!CanInteract())
+	{
+		return false;
+	}
+
+	if (kid)
+	{
+		kid->GetKidController()->CurrentCheckpoint = this;
+		CheckpointSelected();
+	}
+	return true;
+}
+
+FString ALevelCheckpoint::GetPromptText()
+{
+	return FString("Press button to activate this checkpoint");
 }

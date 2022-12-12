@@ -1,5 +1,7 @@
 #include "KidController.h"
 #include "ContextInteractable.h"
+#include "GameFramework/PlayerStart.h"
+#include "Kismet/GameplayStatics.h"
 
 void AKidController::BeginPlay()
 {
@@ -70,6 +72,29 @@ void AKidController::InteractWithSelected()
 	{
 		CurrentInteractable->InteractWith();
 	}
+	else if (!bIsPlaying)
+	{
+		bIsPlaying = true;
+		if (CurrentCheckpoint)
+		{
+			GetPawn()->SetActorLocation(CurrentCheckpoint->GetActorLocation());
+		}
+		else
+		{
+			const UWorld* World = GetWorld();
+			TArray<AActor*> PlayerStarts;
+			UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), PlayerStarts);
+			for (auto Start : PlayerStarts)
+			{
+				GetPawn()->SetActorLocation(Start->GetActorLocation());
+				break;
+			}
+		}
+		if (GameOverHUD)
+		{
+			GameOverHUD->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
 }
 
 void AKidController::CollectItem(FGameplayTag& Item)
@@ -111,7 +136,7 @@ void AKidController::ToggleHiddingSpot(AHidingSpot* NewHidingSpot)
 	{
 		HidingSpots.Remove(NewHidingSpot);
 	}
-	else 
+	else
 	{
 		HidingSpots.Add(NewHidingSpot);
 	}

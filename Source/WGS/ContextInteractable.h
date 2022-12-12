@@ -160,3 +160,16 @@ public:
 	FString GetPromptText() override;
 };
 
+UCLASS()
+class WGS_API ALevelCheckpoint : public AContextInteractable
+{
+	GENERATED_BODY()
+
+public:
+	
+	bool InteractWith() override;
+	FString GetPromptText() override;
+	UFUNCTION(BlueprintImplementableEvent)
+	void CheckpointSelected();
+};
+

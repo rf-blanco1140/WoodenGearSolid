@@ -46,6 +46,8 @@ public:
 	TSubclassOf<UUserWidget> GameOverHUD_BP;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widgets)
 	TSubclassOf<UKidStateUI> StateHUD_BP;
+	UPROPERTY()
+	class ALevelCheckpoint* CurrentCheckpoint;
 	bool CanMove();
 	AContextInteractable* GetObjectSelected() const;
 	void ChangeObjectSelected(AContextInteractable*);
