@@ -1,6 +1,7 @@
 #include "ContextInteractable.h"
 #include "KidCharacter.h"
 #include "KidController.h"
+#include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
 #include "Components/ArrowComponent.h"
@@ -163,6 +164,10 @@ bool ALockedInteractable::InteractWith()
 	if (!CanInteract())
 	{
 		return false;
+	}
+	if (UnlockedFX)
+	{
+		UGameplayStatics::PlaySound2D(this, UnlockedFX);
 	}
 
 	finished = true;

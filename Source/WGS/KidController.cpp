@@ -2,6 +2,7 @@
 #include "ContextInteractable.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 void AKidController::BeginPlay()
 {
@@ -107,7 +108,10 @@ void AKidController::CollectItem(FGameplayTag& Item)
 	{
 		CollectedKeys[Item]++;
 	}
-
+	if (GrabbedItem)
+	{
+		UGameplayStatics::PlaySound2D(this, GrabbedItem);
+	}
 	InventoryHUD->UpdateInventory(CollectedKeys);
 }
 
@@ -124,6 +128,10 @@ void AKidController::ConsumeItem(FGameplayTag& Item, int Quantity)
 		if (CollectedKeys[Item] <= 0)
 		{
 			CollectedKeys.Remove(Item);
+		}
+		if (UsedItem)
+		{
+			UGameplayStatics::PlaySound2D(this, UsedItem);
 		}
 		InventoryHUD->UpdateInventory(CollectedKeys);
 	}
@@ -170,6 +178,10 @@ TArray<AHidingSpot*> AKidController::GetCurrentHidingSpots() const
 void AKidController::GameOver()
 {
 	bIsPlaying = false;
+	if (GettingCaught)
+	{
+		UGameplayStatics::PlaySound2D(this, GettingCaught);
+	}
 	if (GameOverHUD)
 	{
 		GameOverHUD->SetVisibility(ESlateVisibility::Visible);

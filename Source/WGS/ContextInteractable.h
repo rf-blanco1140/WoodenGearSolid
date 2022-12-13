@@ -99,6 +99,8 @@ public:
 		FGameplayTag InteractionTag;
 	UPROPERTY(BlueprintReadOnly)
 		bool finished;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoundFX)
+	class USoundCue* UnlockedFX;
 
 	bool CanOverlap() override;
 	bool CanInteract() override;

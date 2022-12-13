@@ -9,6 +9,7 @@
 #include "KidController.generated.h"
 
 class AContextInteractable;
+class USoundCue;
 
 UCLASS()
 class WGS_API AKidController : public APlayerController
@@ -46,6 +47,12 @@ public:
 	TSubclassOf<UUserWidget> GameOverHUD_BP;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widgets)
 	TSubclassOf<UKidStateUI> StateHUD_BP;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoundFX)
+	USoundCue* GettingCaught;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoundFX)
+	USoundCue* GrabbedItem;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SoundFX)
+	USoundCue* UsedItem;
 	UPROPERTY()
 	class ALevelCheckpoint* CurrentCheckpoint;
 	bool CanMove();
