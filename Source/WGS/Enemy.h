@@ -66,6 +66,8 @@ protected:
 	void Tick(float DeltaTime) override;
 	void CheckFOVLength();
 	float CheckInDirection(FVector);
+	void KillChild();
+	bool bIsSeeingChild;
 };
 
 UCLASS()

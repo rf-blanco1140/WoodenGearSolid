@@ -75,6 +75,7 @@ void AKidController::InteractWithSelected()
 	}
 	else if (!bIsPlaying)
 	{
+		HidingSpots.Empty();
 		bIsPlaying = true;
 		if (CurrentCheckpoint)
 		{

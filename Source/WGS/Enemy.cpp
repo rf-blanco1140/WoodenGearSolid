@@ -45,26 +45,48 @@ void AEnemy::Tick(float DeltaTime)
 	}
 
 	CheckFOVLength();
+
+	if (!KidController)
+		return;
+
+	if (bIsSeeingChild)
+	{
+		switch (KidController->GetStealthState())
+		{
+			case EStealthState::Exposed:
+				KillChild();
+				return;
+				break;
+			case EStealthState::PartiallyHidden:
+				if (CurrentState == EEnemyState::Idle)
+				{
+					CurrentState = EEnemyState::ActiveAlert;
+					ToggleStateVisuals();
+				}
+				break;
+			case EStealthState::TotallyHidden:
+				if (CurrentState != EEnemyState::Idle)
+				{
+					CurrentState = EEnemyState::PassiveAlert;
+					ToggleStateVisuals();
+				}
+				break;
+		}
+	}
 	
 	if (CurrentState == EEnemyState::ActiveAlert)
 	{
 		CurrentAlertDelay += DeltaTime;
-		if (KidController)
-		{
-			KidController->UpdateAlertState(CurrentAlertDelay / AlertTime);
-		}
+		KidController->UpdateAlertState(CurrentAlertDelay / AlertTime);
 		if (CurrentAlertDelay >= AlertTime)
 		{
-			KidController->GameOver();
+			KillChild();
 		}
 	}
 	else if (CurrentState == EEnemyState::PassiveAlert)
 	{
 		CurrentAlertDelay -= DeltaTime;
-		if (KidController)
-		{
-			KidController->UpdateAlertState(CurrentAlertDelay / AlertTime);
-		}
+		KidController->UpdateAlertState(CurrentAlertDelay / AlertTime);
 		if (CurrentAlertDelay <= 0)
 		{
 			CurrentState = EEnemyState::Idle;
@@ -72,6 +94,17 @@ void AEnemy::Tick(float DeltaTime)
 		}
 	}
 }
+
+void AEnemy::KillChild()
+{
+	bIsSeeingChild = false;
+	CurrentAlertDelay = 0;
+	CurrentState = EEnemyState::Idle;
+	ToggleStateVisuals();
+	KidController->UpdateAlertState(0);
+	KidController->GameOver();
+}
+
 
 void AEnemy::CheckFOVLength()
 {
@@ -133,10 +166,11 @@ void AEnemy::EnteredFieldOfView(UPrimitiveComponent* OverlappedComponent, AActor
 		if (AKidCharacter* newCollision = Cast<AKidCharacter>(OtherActor))
 		{
 			KidController = newCollision->GetKidController();
+			bIsSeeingChild = true;
 			switch (KidController->GetStealthState())
 			{
 				case EStealthState::Exposed:
-					KidController->GameOver();
+					KillChild();
 					break;
 				case EStealthState::PartiallyHidden:
 					CurrentState = EEnemyState::ActiveAlert;
@@ -156,8 +190,12 @@ void AEnemy::ExitedFieldOfView(UPrimitiveComponent* OverlappedComponent, AActor*
 		AKidCharacter* newCollision = Cast<AKidCharacter>(OtherActor);
 		if (newCollision && KidController != nullptr)
 		{
-			CurrentState = EEnemyState::PassiveAlert;
-			ToggleStateVisuals();
+			if (CurrentState == EEnemyState::ActiveAlert)
+			{
+				CurrentState = EEnemyState::PassiveAlert;
+				ToggleStateVisuals();
+			}
+			bIsSeeingChild = false;
 		}
 	}
 }
