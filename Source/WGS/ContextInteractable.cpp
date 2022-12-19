@@ -6,6 +6,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/DecalComponent.h"
 
 // Sets default values
 AContextInteractable::AContextInteractable()
@@ -17,6 +18,9 @@ AContextInteractable::AContextInteractable()
 	ActivationRange->SetCollisionResponseToAllChannels(ECR_Ignore);
 	ActivationRange->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	RootComponent = ActivationRange;
+
+	Outline = CreateDefaultSubobject<UDecalComponent>(TEXT("Outline"));
+	Outline->SetupAttachment(ActivationRange);
 }
 
 // Called when the game starts or when spawned
@@ -26,6 +30,7 @@ void AContextInteractable::BeginPlay()
 	ActivationRange->OnComponentBeginOverlap.AddDynamic(this, &AContextInteractable::OnOverlapRangeBegin);
 	ActivationRange->OnComponentEndOverlap.AddDynamic(this, &AContextInteractable::OnOverlapRangeEnd);
 	player = nullptr;
+	Outline->DecalSize = ActivationRange->GetUnscaledBoxExtent();
 }
 
 bool AContextInteractable::CanOverlap()

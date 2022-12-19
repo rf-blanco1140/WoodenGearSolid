@@ -34,7 +34,9 @@ public:
 	AContextInteractable();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		class UBoxComponent* ActivationRange;
+	class UBoxComponent* ActivationRange;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UDecalComponent* Outline;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UDataTable* TagData;
