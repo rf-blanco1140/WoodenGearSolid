@@ -7,6 +7,7 @@
 void AKidController::BeginPlay()
 {
 	bIsPlaying = true;
+	bGamePaused = false;
 	if (PromptHUD_BP)
 	{
 		PromptHUD = Cast<UInteractionPrompt>(CreateWidget<UUserWidget>(this, PromptHUD_BP));
@@ -44,7 +45,7 @@ void AKidController::UpdateAlertState(float Percentage)
 
 bool AKidController::CanMove()
 {
-	return bIsPlaying;
+	return bIsPlaying && !bGamePaused;
 }
 
 AContextInteractable* AKidController::GetObjectSelected() const
@@ -179,6 +180,7 @@ TArray<AHidingSpot*> AKidController::GetCurrentHidingSpots() const
 void AKidController::GameOver()
 {
 	bIsPlaying = false;
+	bGamePaused = false;
 	if (GettingCaught)
 	{
 		UGameplayStatics::PlaySound2D(this, GettingCaught);
