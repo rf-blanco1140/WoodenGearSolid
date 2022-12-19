@@ -222,9 +222,10 @@ bool AMultipleKeyLockedInteractable::CanInteract()
 
 FString AMultipleKeyLockedInteractable::GetPromptText()
 {
-	if (FInteractableType* Item = TagData->FindRow<FInteractableType>(FName(InteractionTag.ToString()), ""))
+	auto InterTag = InteractionTags.begin();
+	if (FInteractableType* Item = TagData->FindRow<FInteractableType>(InterTag->Key.GetTagName(), ""))
 	{
-		return FString("Use " + Item->ScreenName.ToString() + " to unlock");
+		return FString("Use " + Item->ScreenName.ToString() + " (" + FString::FromInt(InterTag->Value) + ") to unlock");
 	}
 	return FString("Use " + InteractionTag.ToString() + " to unlock");
 }
