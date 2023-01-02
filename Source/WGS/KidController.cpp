@@ -77,6 +77,7 @@ void AKidController::InteractWithSelected()
 	else if (!bIsPlaying)
 	{
 		HidingSpots.Empty();
+		StateHUD->StealthStateChanged(GetStealthState());
 		bIsPlaying = true;
 		if (CurrentCheckpoint)
 		{
@@ -140,9 +141,9 @@ void AKidController::ConsumeItem(FGameplayTag& Item, int Quantity)
 }
 
 
-void AKidController::ToggleHiddingSpot(AHidingSpot* NewHidingSpot)
+void AKidController::ToggleHiddingSpot(AHidingSpot* NewHidingSpot, bool entered)
 {
-	if (HidingSpots.Contains(NewHidingSpot))
+	if (!entered)
 	{
 		HidingSpots.Remove(NewHidingSpot);
 	}
@@ -150,6 +151,7 @@ void AKidController::ToggleHiddingSpot(AHidingSpot* NewHidingSpot)
 	{
 		HidingSpots.Add(NewHidingSpot);
 	}
+
 	NewHidingSpot->UpdateHidingVisuals();
 	StateHUD->StealthStateChanged(GetStealthState());
 }

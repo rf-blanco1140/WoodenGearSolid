@@ -65,7 +65,7 @@ public:
 	bool HasCollectedItem(FGameplayTag&, int Quantity = 1);
 	void ConsumeItem(FGameplayTag&, int Quantity = 1);
 
-	void ToggleHiddingSpot(AHidingSpot*);
+	void ToggleHiddingSpot(AHidingSpot*, bool entered);
 	EStealthState GetStealthState() const;
 	TArray<AHidingSpot*> GetCurrentHidingSpots() const;
 	void GameOver();

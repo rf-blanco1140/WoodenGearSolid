@@ -34,7 +34,7 @@ void AHidingSpot::OnHidingBegin(UPrimitiveComponent* OverlappedComponent, AActor
 			player = newCollision->GetKidController();
 			if (player != nullptr)
 			{
-				player->ToggleHiddingSpot(this);
+				player->ToggleHiddingSpot(this, true);
 				UpdateHidingVisuals();
 			}
 		}
@@ -48,7 +48,7 @@ void AHidingSpot::OnHidingEnd(UPrimitiveComponent* OverlappedComponent, AActor* 
 		AKidCharacter* newCollision = Cast<AKidCharacter>(OtherActor);
 		if (newCollision && player != nullptr)
 		{
-			player->ToggleHiddingSpot(this);
+			player->ToggleHiddingSpot(this, false);
 			player = nullptr;
 			UpdateHidingVisuals();
 		}
