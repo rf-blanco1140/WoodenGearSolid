@@ -149,9 +149,9 @@ FString ACollectableInteractable::GetPromptText()
 {
 	if (FInteractableType* Item = TagData->FindRow<FInteractableType>(FName(InteractionTag.ToString()), ""))
 	{
-		return FString("Press button to collect " + Item->ScreenName.ToString());
+		return FString("Collect " + Item->ScreenName.ToString());
 	}
-	return FString("Press button to collect " + InteractionTag.ToString());
+	return FString("Collect " + InteractionTag.ToString());
 }
 
 bool ALockedInteractable::CanOverlap()
@@ -344,7 +344,7 @@ bool ALevelDoor::InteractWith()
 
 FString ALevelDoor::GetPromptText()
 {
-	return FString("Press button to go to " + LevelPromptName.ToString());
+	return FString("Go to " + LevelPromptName.ToString());
 }
 
 bool ALevelCheckpoint::InteractWith()
@@ -364,5 +364,5 @@ bool ALevelCheckpoint::InteractWith()
 
 FString ALevelCheckpoint::GetPromptText()
 {
-	return FString("Press button to activate this checkpoint");
+	return FString("Activate this checkpoint");
 }

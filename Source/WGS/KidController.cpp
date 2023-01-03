@@ -68,6 +68,11 @@ void AKidController::ChangeObjectSelected(AContextInteractable* Interactable)
 	}
 }
 
+void AKidController::ResetPrompt()
+{
+	PromptHUD->SetDescriptionText(FString(""));
+}
+
 void AKidController::InteractWithSelected()
 {
 	if (bIsPlaying && CurrentInteractable != nullptr)
