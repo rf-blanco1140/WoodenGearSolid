@@ -6,6 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SplineComponent.h"
 #include "Components/DecalComponent.h"
+#include "PaperSpriteComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 AEnemy::AEnemy()
@@ -20,6 +21,10 @@ AEnemy::AEnemy()
 
 	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
 	GetCharacterMovement()->GravityScale = 0;
+
+	FaceSprite = CreateDefaultSubobject<UPaperSpriteComponent>("Face");
+	FaceSprite->SetupAttachment(GetMesh(), TEXT("FaceSocket"));
+	FaceSprite->SetCollisionResponseToAllChannels(ECR_Ignore);
 }
 
 void AEnemy::BeginPlay()

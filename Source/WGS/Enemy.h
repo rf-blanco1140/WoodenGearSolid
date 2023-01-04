@@ -28,6 +28,10 @@ public:
 	class UStaticMeshComponent* FieldOfView;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UDecalComponent* FOVShadow;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UPaperSpriteComponent* FaceSprite;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Values")
 	float AlertTime;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Values")
