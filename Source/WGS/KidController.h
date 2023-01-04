@@ -61,6 +61,7 @@ public:
 	AContextInteractable* GetObjectSelected() const;
 	void ChangeObjectSelected(AContextInteractable*);
 	void InteractWithSelected();
+	void ResetPrompt();
 	void CollectItem(FGameplayTag&);
 	bool HasCollectedItem(FGameplayTag&, int Quantity = 1);
 	void ConsumeItem(FGameplayTag&, int Quantity = 1);

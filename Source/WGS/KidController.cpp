@@ -15,6 +15,14 @@ void AKidController::BeginPlay()
 		PromptHUD->SetVisibility(ESlateVisibility::Visible);
 		PromptHUD->SetDescriptionText(FString(""));
 	}
+	if (StateHUD_BP)
+	{
+		StateHUD = Cast<UKidStateUI>(CreateWidget<UUserWidget>(this, StateHUD_BP));
+		StateHUD->AddToViewport();
+		StateHUD->SetVisibility(ESlateVisibility::Visible);
+		UpdateAlertState(0);
+		StateHUD->StealthStateChanged(GetStealthState());
+	}
 	if (GameOverHUD_BP)
 	{
 		GameOverHUD = CreateWidget<UUserWidget>(this, GameOverHUD_BP);
@@ -26,14 +34,6 @@ void AKidController::BeginPlay()
 		InventoryHUD = Cast<UInventoryScreen>(CreateWidget<UUserWidget>(this, InventoryHUD_BP));
 		InventoryHUD->AddToViewport();
 		InventoryHUD->SetVisibility(ESlateVisibility::Visible);
-	}
-	if (StateHUD_BP)
-	{
-		StateHUD = Cast<UKidStateUI>(CreateWidget<UUserWidget>(this, StateHUD_BP));
-		StateHUD->AddToViewport();
-		StateHUD->SetVisibility(ESlateVisibility::Visible);
-		UpdateAlertState(0);
-		StateHUD->StealthStateChanged(GetStealthState());
 	}
 
 }
@@ -66,6 +66,11 @@ void AKidController::ChangeObjectSelected(AContextInteractable* Interactable)
 		CurrentInteractable = nullptr;
 		PromptHUD->SetDescriptionText(FString(""));
 	}
+}
+
+void AKidController::ResetPrompt()
+{
+	PromptHUD->SetDescriptionText(FString(""));
 }
 
 void AKidController::InteractWithSelected()

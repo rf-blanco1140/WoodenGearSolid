@@ -165,6 +165,7 @@ void AKidCharacter::StartClimbing()
 	
 	GetCharacterMovement()->Deactivate();
 	CurrentState = EKidState::Climbing;
+	GetKidController()->ResetPrompt();
 
 }
 
